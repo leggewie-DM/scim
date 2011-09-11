@@ -37,7 +37,7 @@ Description: replaced content of config by the package data scim-system-config
 +/Hotkeys/FrontEnd/PreviousFactory/zh_TW = Control+Alt+Up,Shift+Control+KeyRelease+Control_L,Shift+Control+KeyRelease+Control_R
 +/Hotkeys/FrontEnd/ShowFactoryMenu = 
 +# disable trigger hotkey by default, except for the locale below:
- /Hotkeys/FrontEnd/Trigger = Control+space
+ /Hotkeys/FrontEnd/Trigger = Control+space,Zenkaku_Hankaku,Hangul
 -/Hotkeys/FrontEnd/ValidKeyMask = Shift+Control+Alt+Meta+QuirkKanaRo
 +/Hotkeys/FrontEnd/Trigger/ja_JP = Zenkaku_Hankaku,Alt+grave,Control+space
 +/Hotkeys/FrontEnd/Trigger/ko_KR = Alt+Alt_L+KeyRelease,Shift+space,Control+space,Hangul
