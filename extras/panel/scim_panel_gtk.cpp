@@ -60,7 +60,7 @@
 #include "scimstringview.h"
 
 #if ENABLE_TRAY_ICON
-  #include "scimtrayicon.h"
+//  #include "scimtrayicon.h"
 #endif
 
 using namespace scim;
@@ -111,7 +111,7 @@ using namespace scim;
 #define SCIM_PIN_DOWN_ICON_FILE     (SCIM_ICONDIR "/pin-down.png")
 
 #define TOOLBAR_ICON_SIZE                     16 
-#define TRAY_ICON_SIZE                        18
+#define TRAY_ICON_SIZE                        11
 #define LOOKUP_ICON_SIZE                      12
 
 /////////////////////////////////////////////////////////////////////////////
@@ -156,6 +156,9 @@ static void       ui_settle_input_window               (bool            relative
 static void       ui_settle_lookup_table_window        (bool            force    = false);
 static void       ui_settle_toolbar_window             (bool            force    = false);
 
+static bool       ui_get_screen_rect                   (GdkRectangle &rect);
+static int        ui_multi_monitor_width               (void);
+static int        ui_multi_monitor_height              (void);
 static int        ui_screen_width                      (void);
 static int        ui_screen_height                     (void);
 static void       ui_get_workarea                      (int            &x,
@@ -275,6 +278,13 @@ static void       ui_command_menu_deactivate_cb        (GtkWidget      *item,
 
 #if ENABLE_TRAY_ICON
 static void       ui_tray_icon_destroy_cb              (GtkObject      *object,
+                                                        gpointer        user_data);
+static void       ui_tray_icon_popup_menu_cb           (GtkStatusIcon  *status_icon,
+                                                        guint           button, 
+                                                        guint           activate_time,
+                                                        gpointer        user_data);
+
+static void       ui_tray_icon_activate_cb             (GtkStatusIcon  *status_icon,
                                                         gpointer        user_data);
 #endif
 
@@ -399,9 +409,11 @@ static GtkTooltips       *_tooltips                    = 0;
 static PangoFontDescription *_default_font_desc        = 0;
 
 #if ENABLE_TRAY_ICON
-static ScimTrayIcon      *_tray_icon                   = 0;
-static GtkWidget         *_tray_icon_factory_button    = 0;
-static gulong             _tray_icon_destroy_signal_id = 0;
+static GtkStatusIcon     *_tray_icon                   = 0;
+// static GtkWidget         *_tray_icon_factory_button    = 0;
+// static gulong             _tray_icon_destroy_signal_id = 0;
+static bool              _tray_icon_clicked            = false;
+static guint             _tray_icon_clicked_time       = 0;
 #endif
 
 static gboolean           _input_window_draging        = FALSE;
@@ -481,6 +493,8 @@ static std::vector<String> _factory_menu_uuids;
 static std::list<String>  _recent_factory_uuids;
 
 static struct timeval     _last_menu_deactivate_time = {0, 0};
+
+static bool               _multi_monitors              = false;
 
 // client repository
 static PropertyRepository            _frontend_property_repository;
@@ -638,6 +652,7 @@ ui_initialize (void)
     GtkWidget *input_window_vbox;
 
     ui_load_config ();
+    _toolbar_hidden = false;
 
     if (_lookup_table_window) gtk_widget_destroy (_lookup_table_window);
     if (_input_window) gtk_widget_destroy (_input_window);
@@ -647,9 +662,9 @@ ui_initialize (void)
 
 #if ENABLE_TRAY_ICON
     if (_tray_icon) {
-        g_signal_handler_disconnect (G_OBJECT (_tray_icon),
-                                     _tray_icon_destroy_signal_id);
-        gtk_widget_destroy (GTK_WIDGET (_tray_icon));
+        // g_signal_handler_disconnect (G_OBJECT (_tray_icon),
+        //                             _tray_icon_destroy_signal_id);
+        g_object_unref (_tray_icon);
     }
     _tray_icon = 0;
 #endif
@@ -742,7 +757,6 @@ ui_initialize (void)
         GtkWidget *lookup_table_parent;
         GtkWidget *image;
         GtkWidget *separator;
-        GtkRequisition size;
 
         if (_lookup_table_embedded) {
             _lookup_table_window = gtk_vbox_new (FALSE, 0);
@@ -976,9 +990,6 @@ ui_initialize (void)
 
     // Create help window
     {
-        GtkWidget *frame;
-        GtkWidget *vbox;
-
         _help_dialog = gtk_dialog_new_with_buttons (_("SCIM Help"),
                                 NULL,
                                 GtkDialogFlags (0),
@@ -996,18 +1007,9 @@ ui_initialize (void)
                                   G_CALLBACK (gtk_widget_hide_on_delete),
                                   GTK_OBJECT (_help_dialog));
 
-        frame = gtk_frame_new (_("Smart Common Input Method"));
-
-        gtk_box_pack_start (GTK_BOX (GTK_DIALOG (_help_dialog)->vbox), frame, TRUE, TRUE, 0);
-        gtk_widget_show (frame);
-
-        vbox = gtk_vbox_new (FALSE, 8);
-        gtk_container_add (GTK_CONTAINER (frame), vbox);
-        gtk_widget_show (vbox);
-
         _help_scroll = gtk_scrolled_window_new (NULL, NULL);
         gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (_help_scroll), GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
-        gtk_box_pack_start (GTK_BOX (vbox), _help_scroll, TRUE, TRUE, 0);
+        gtk_box_pack_start (GTK_BOX (GTK_DIALOG (_help_dialog)->vbox), _help_scroll, TRUE, TRUE, 0);
         gtk_widget_show (_help_scroll);
 
         _help_area = gtk_label_new ("");
@@ -1037,8 +1039,13 @@ ui_initialize (void)
     }
 
     //Init timeout callback
+    if (_toolbar_hide_timeout != 0) {
+        g_source_remove (_toolbar_hide_timeout);
+        _toolbar_hide_timeout = 0;
+
+    }
     if (_toolbar_always_show && _toolbar_hide_timeout_max > 0) {
-        _toolbar_hide_timeout = gtk_timeout_add (1000, ui_hide_window_timeout_cb, NULL);
+        _toolbar_hide_timeout = g_timeout_add (1000, ui_hide_window_timeout_cb, NULL);
         g_signal_connect (G_OBJECT (_toolbar_window), "enter-notify-event",
                           G_CALLBACK (ui_toolbar_window_crossing_cb),
                           GINT_TO_POINTER (0));
@@ -1072,11 +1079,13 @@ ui_initialize (void)
 #ifdef GDK_WINDOWING_X11
     // Add an event filter function to observe X root window's properties.
     GdkWindow *root_window = gdk_get_default_root_window ();
+    GdkEventMask event_mask;
 #if GDK_MULTIHEAD_SAFE
     if (_current_screen)
         root_window = gdk_screen_get_root_window (_current_screen);
 #endif
-    gdk_window_set_events (root_window, (GdkEventMask)GDK_PROPERTY_NOTIFY);
+    event_mask = (GdkEventMask) (gdk_window_get_events (root_window) | GDK_PROPERTY_NOTIFY);
+    gdk_window_set_events (root_window, event_mask);
     gdk_window_add_filter (root_window, ui_event_filter, NULL);
 #endif
 
@@ -1190,6 +1199,10 @@ ui_settle_toolbar_window (bool force)
                            workarea_x + workarea_width - ws.width);
     pos_y = _config->read (String (SCIM_CONFIG_PANEL_GTK_TOOLBAR_POS_Y),
                            workarea_y + workarea_height - ws.height);
+    if (_multi_monitors) {
+       pos_x = -1;
+       pos_y = -1;
+    }
     if (pos_x == -1 && pos_y == -1) {
         pos_x = workarea_x + workarea_width  - ws.width;
         pos_y = workarea_y + workarea_height - ws.height;
@@ -1218,12 +1231,72 @@ ui_settle_toolbar_window (bool force)
     }
 }
 
+static bool
+ui_get_screen_rect (GdkRectangle &rect)
+{
+#if GDK_MULTIHEAD_SAFE
+	GdkWindow * active_window;
+    int index;
+
+    if (_current_screen)
+    {
+        if ( gdk_screen_get_n_monitors (_current_screen) > 1)
+        {
+            _multi_monitors = true;
+            active_window = gdk_screen_get_active_window(_current_screen);
+            index = gdk_screen_get_monitor_at_window(_current_screen, active_window);
+            gdk_screen_get_monitor_geometry(_current_screen, index, &rect);
+            return TRUE;
+        }
+    }
+#endif
+    return FALSE;
+}
+
+static int
+ui_multi_monitor_width ()
+{
+#if GDK_MULTIHEAD_SAFE
+	GdkRectangle rect;
+    
+    if (_current_screen)
+    {
+        if ( ui_get_screen_rect (rect) )
+        {
+            return rect.x + rect.width;
+        }
+
+        return gdk_screen_get_width (_current_screen);
+    }
+#endif
+    return 0;
+}
+
+static int
+ui_multi_monitor_height ()
+{
+#if GDK_MULTIHEAD_SAFE
+	GdkRectangle rect;
+    
+    if (_current_screen)
+    {
+        if ( ui_get_screen_rect (rect) )
+        {
+            return rect.y + rect.height;
+        }
+
+        return gdk_screen_get_height (_current_screen);
+    }
+#endif
+    return 0;
+}
+
 static int
 ui_screen_width (void)
 {
 #if GDK_MULTIHEAD_SAFE
     if (_current_screen)
-        return gdk_screen_get_width (_current_screen);
+        return ui_multi_monitor_width ();
 #endif
     return gdk_screen_width ();
 }
@@ -1233,7 +1306,7 @@ ui_screen_height (void)
 {
 #if GDK_MULTIHEAD_SAFE
     if (_current_screen)
-        return gdk_screen_get_height (_current_screen);
+        return ui_multi_monitor_height ();
 #endif
     return gdk_screen_height ();
 }
@@ -1312,9 +1385,9 @@ ui_switch_screen (GdkScreen *screen)
         }
 
 #if ENABLE_TRAY_ICON
-        if (_tray_icon) {
-            gtk_window_set_screen (GTK_WINDOW (_tray_icon), screen);
-        }
+        // if (_tray_icon) {
+        //     gtk_window_set_screen (GTK_WINDOW (_tray_icon), screen);
+        // }
 #endif
 
         if (_help_dialog) {
@@ -1323,9 +1396,11 @@ ui_switch_screen (GdkScreen *screen)
 
 #ifdef GDK_WINDOWING_X11
         GdkWindow *root_window = gdk_get_default_root_window ();
+        GdkEventMask event_mask;
         if (_current_screen)
             root_window = gdk_screen_get_root_window (_current_screen);
-        gdk_window_set_events (root_window, (GdkEventMask)GDK_PROPERTY_NOTIFY);
+        event_mask = (GdkEventMask) (gdk_window_get_events (root_window) | GDK_PROPERTY_NOTIFY);
+        gdk_window_set_events (root_window, event_mask);
         gdk_window_add_filter (root_window, ui_event_filter, NULL);
 #endif
 
@@ -1337,65 +1412,75 @@ ui_switch_screen (GdkScreen *screen)
 #endif
 
 #if ENABLE_TRAY_ICON
-static gboolean
-ui_tray_icon_expose_event_cb (GtkWidget *widget, GdkEventExpose *event)
-{
-    gdk_window_clear_area (widget->window, event->area.x, event->area.y,
-                           event->area.width, event->area.height);
-    return FALSE;
-}
-
-static void
-ui_tray_icon_style_set_cb (GtkWidget *widget, GtkStyle *previous_style)
-{
-    gdk_window_set_back_pixmap (widget->window, NULL, TRUE);
-}
-
-static void
-ui_tray_icon_realize_cb (GtkWidget *widget)
-{
-    if (GTK_WIDGET_NO_WINDOW (widget) || GTK_WIDGET_APP_PAINTABLE (widget))
-        return;
-
-    gtk_widget_set_app_paintable (widget, TRUE);
-    gtk_widget_set_double_buffered (widget, FALSE);
-    gdk_window_set_back_pixmap (widget->window, NULL, TRUE);
-    g_signal_connect (widget, "expose_event",
-                      G_CALLBACK (ui_tray_icon_expose_event_cb), NULL);
-    g_signal_connect_after (widget, "style_set",
-                            G_CALLBACK (ui_tray_icon_style_set_cb), NULL);
-}
+// static gboolean
+// ui_tray_icon_expose_event_cb (GtkWidget *widget, GdkEventExpose *event)
+// {
+//     gdk_window_clear_area (widget->window, event->area.x, event->area.y,
+//                            event->area.width, event->area.height);
+//     return FALSE;
+// }
+// 
+// static void
+// ui_tray_icon_style_set_cb (GtkWidget *widget, GtkStyle *previous_style)
+// {
+//     gdk_window_set_back_pixmap (widget->window, NULL, TRUE);
+// }
+// 
+// static void
+// ui_tray_icon_realize_cb (GtkWidget *widget)
+// {
+//     if (GTK_WIDGET_NO_WINDOW (widget) || GTK_WIDGET_APP_PAINTABLE (widget))
+//         return;
+// 
+//     gtk_widget_set_app_paintable (widget, TRUE);
+//     gtk_widget_set_double_buffered (widget, FALSE);
+//     gdk_window_set_back_pixmap (widget->window, NULL, TRUE);
+//     g_signal_connect (widget, "expose_event",
+//                       G_CALLBACK (ui_tray_icon_expose_event_cb), NULL);
+//     g_signal_connect_after (widget, "style_set",
+//                             G_CALLBACK (ui_tray_icon_style_set_cb), NULL);
+// }
 
 static gboolean
 ui_create_tray_icon_when_idle (gpointer data)
 {
     GtkWidget *image;
 
-    _tray_icon = scim_tray_icon_new ("SCIM Tray Icon");
-    g_signal_connect (G_OBJECT (_tray_icon), "realize",
-                      G_CALLBACK (ui_tray_icon_realize_cb), NULL);
+    _tray_icon = gtk_status_icon_new_from_file (SCIM_KEYBOARD_ICON_FILE);
+    // g_signal_connect (G_OBJECT (_tray_icon), "realize",
+    //                   G_CALLBACK (ui_tray_icon_realize_cb), NULL);
 
-    _tray_icon_destroy_signal_id = 
-    g_signal_connect (G_OBJECT (_tray_icon), "destroy",
-                      G_CALLBACK (ui_tray_icon_destroy_cb),
+    // _tray_icon_destroy_signal_id = 
+    // g_signal_connect (G_OBJECT (_tray_icon), "destroy",
+    //                   G_CALLBACK (ui_tray_icon_destroy_cb),
+    //                   0);
+
+    // image = ui_create_icon (SCIM_KEYBOARD_ICON_FILE,
+    //                         NULL,
+    //                         TRAY_ICON_SIZE,
+    //                         TRAY_ICON_SIZE,
+    //                         true);
+
+    // _tray_icon_factory_button = gtk_event_box_new ();
+    // g_signal_connect (G_OBJECT (_tray_icon_factory_button), "realize",
+    //                   G_CALLBACK (ui_tray_icon_realize_cb), NULL);
+    // gtk_container_add (GTK_CONTAINER (_tray_icon_factory_button), image);
+    // gtk_container_add (GTK_CONTAINER (_tray_icon), _tray_icon_factory_button);
+
+    
+    // g_signal_connect (G_OBJECT (_tray_icon_factory_button), "button-release-event",
+    //                   G_CALLBACK (ui_factory_button_click_cb),
+    //                   0);
+    
+    g_signal_connect (G_OBJECT (_tray_icon), "popup-menu",
+                      G_CALLBACK (ui_tray_icon_popup_menu_cb),
+                      0);
+    
+    g_signal_connect (G_OBJECT (_tray_icon), "activate",
+                      G_CALLBACK (ui_tray_icon_activate_cb),
                       0);
 
-    image = ui_create_icon (SCIM_KEYBOARD_ICON_FILE,
-                            NULL,
-                            TRAY_ICON_SIZE,
-                            TRAY_ICON_SIZE,
-                            true);
-
-    _tray_icon_factory_button = gtk_event_box_new ();
-    g_signal_connect (G_OBJECT (_tray_icon_factory_button), "realize",
-                      G_CALLBACK (ui_tray_icon_realize_cb), NULL);
-    gtk_container_add (GTK_CONTAINER (_tray_icon_factory_button), image);
-    gtk_container_add (GTK_CONTAINER (_tray_icon), _tray_icon_factory_button);
-    g_signal_connect (G_OBJECT (_tray_icon_factory_button), "button-release-event",
-                      G_CALLBACK (ui_factory_button_click_cb),
-                      0);
-
-    gtk_widget_show_all (GTK_WIDGET (_tray_icon));
+    gtk_status_icon_set_visible (_tray_icon, TRUE);
 
     return FALSE;
 }
@@ -1590,12 +1675,12 @@ ui_create_factory_menu_entry (const PanelFactoryInfo &info,
     GtkWidget *icon_image;
     String text, tooltip;
 
-    if (show_lang && !show_name) {
-        text = scim_get_language_name (info.lang);
-        tooltip = info.name;
-    } else if (!show_lang && show_name) {
+    if ((!show_lang && show_name) || (show_lang && !show_name && (info.lang == "C" || info.lang == "~other"))) {
         text = info.name;
         tooltip = "";
+    } else if (show_lang && !show_name) {
+        text = scim_get_language_name (info.lang);
+        tooltip = info.name;
     } else {
         text = scim_get_language_name (info.lang) + " - " + info.name;
         tooltip = "";
@@ -1683,6 +1768,23 @@ ui_factory_button_click_cb (GtkWidget *button,
         action_show_command_menu ();
 
     return FALSE;
+}
+
+static void
+ui_tray_icon_popup_menu_cb (GtkStatusIcon *status_icon, guint button, 
+    guint activate_time, gpointer user_data)
+{
+    _tray_icon_clicked = true;
+    _tray_icon_clicked_time = activate_time;
+    action_show_command_menu ();
+}
+
+static void
+ui_tray_icon_activate_cb (GtkStatusIcon *status_icon, gpointer user_data)
+{
+    _tray_icon_clicked = true;
+    _tray_icon_clicked_time = gtk_get_current_event_time ();
+    _panel_agent->request_factory_menu ();
 }
 
 static void
@@ -1931,6 +2033,10 @@ ui_toolbar_window_click_cb (GtkWidget *window,
 
         if (!_config.null () &&
             (_toolbar_window_x != pos_x || _toolbar_window_y != pos_y)) {
+            if (_multi_monitors) {
+               pos_x = -1;
+               pos_y = -1;
+            }
             _config->write (
                 SCIM_CONFIG_PANEL_GTK_TOOLBAR_POS_X, pos_x);
             _config->write (
@@ -2243,19 +2349,19 @@ ui_command_menu_deactivate_cb (GtkWidget   *item,
 }
 
 #if ENABLE_TRAY_ICON
-static void
-ui_tray_icon_destroy_cb (GtkObject      *object,
-                         gpointer        user_data)
-{
-    SCIM_DEBUG_MAIN (1) << "Tray Icon destroyed!\n";
-
-    gtk_widget_destroy (GTK_WIDGET (object));
-
-    _tray_icon = 0;
-    _tray_icon_factory_button = 0;
-
-    g_idle_add (ui_create_tray_icon_when_idle, NULL);
-}
+// static void
+// ui_tray_icon_destroy_cb (GtkObject      *object,
+//                          gpointer        user_data)
+// {
+//     SCIM_DEBUG_MAIN (1) << "Tray Icon destroyed!\n";
+// 
+//     gtk_widget_destroy (GTK_WIDGET (object));
+// 
+//     _tray_icon = 0;
+//     _tray_icon_factory_button = 0;
+// 
+//     g_idle_add (ui_create_tray_icon_when_idle, NULL);
+// }
 #endif
 
 static void
@@ -2436,8 +2542,12 @@ action_show_command_menu (void)
                       G_CALLBACK (ui_command_menu_exit_activate_cb),
                       0);
     gtk_widget_show_all (menu_item);
-
-    gtk_menu_popup (GTK_MENU (_command_menu), 0, 0, 0, 0, 2, activate_time);
+    if (_tray_icon_clicked && _tray_icon) {
+        gtk_menu_popup (GTK_MENU (_command_menu), 0, 0, gtk_status_icon_position_menu, _tray_icon, 2, _tray_icon_clicked_time);
+    }
+    else
+        gtk_menu_popup (GTK_MENU (_command_menu), 0, 0, 0, 0, 2, activate_time);
+    _tray_icon_clicked = false;
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -2505,11 +2615,14 @@ panel_agent_thread_func (gpointer data)
 
     if (!_panel_agent->run ())
         std::cerr << "Failed to run Panel.\n";
-
+/*
     G_LOCK (_global_resource_lock);
     _should_exit = true;
     G_UNLOCK (_global_resource_lock);
-
+*/
+    gdk_threads_enter ();
+    gtk_main_quit ();
+    gdk_threads_leave ();
     g_thread_exit (NULL);
     return ((gpointer) NULL);
 }
@@ -2685,18 +2798,21 @@ slot_update_factory_info (const PanelFactoryInfo &info)
     }
 
 #if ENABLE_TRAY_ICON
-    if (_tray_icon_factory_button) {
-        GtkWidget *icon = gtk_bin_get_child (GTK_BIN (_tray_icon_factory_button));
+    // if (_tray_icon_factory_button) {
+    //     GtkWidget *icon = gtk_bin_get_child (GTK_BIN (_tray_icon_factory_button));
 
-        if (icon)
-            gtk_container_remove (GTK_CONTAINER (_tray_icon_factory_button), icon);
+    //     if (icon)
+    //         gtk_container_remove (GTK_CONTAINER (_tray_icon_factory_button), icon);
 
-        icon = ui_create_icon (info.icon, NULL, TRAY_ICON_SIZE, TRAY_ICON_SIZE, true);
+    //     icon = ui_create_icon (info.icon, NULL, TRAY_ICON_SIZE, TRAY_ICON_SIZE, true);
 
-        gtk_container_add (GTK_CONTAINER (_tray_icon_factory_button), icon);
+    //     gtk_container_add (GTK_CONTAINER (_tray_icon_factory_button), icon);
 
-        if (_tooltips)
-            gtk_tooltips_set_tip (_tooltips, _tray_icon_factory_button, info.name.c_str (), NULL);
+    //     if (_tooltips)
+    //         gtk_tooltips_set_tip (_tooltips, _tray_icon_factory_button, info.name.c_str (), NULL);
+    // }
+    if (_tray_icon) {
+        gtk_status_icon_set_from_file (_tray_icon, info.icon.c_str());
     }
 #endif
 
@@ -2721,9 +2837,8 @@ slot_show_factory_menu (const std::vector <PanelFactoryInfo> &factories)
         size_t i;
 
         MapStringVectorSizeT groups;
-        std::map<String,size_t> recents;
+        std::map<String,size_t> langs, recents;
 
-        guint32 activate_time = gtk_get_current_event_time ();
 
         _factory_menu_uuids.clear ();
         _factory_menu_activated = true;
@@ -2733,6 +2848,7 @@ slot_show_factory_menu (const std::vector <PanelFactoryInfo> &factories)
 
         for (i = 0; i < factories.size (); ++i) {
             _factory_menu_uuids.push_back (factories [i].uuid);
+            langs [factories [i].lang]++;
 
             if (show_recent &&
                 std::find (_recent_factory_uuids.begin (), _recent_factory_uuids.end (),
@@ -2767,16 +2883,16 @@ slot_show_factory_menu (const std::vector <PanelFactoryInfo> &factories)
         // recently used factories
         if (show_recent && recents.size ()) {
             for (std::list<String>::iterator it = _recent_factory_uuids.begin (); it != _recent_factory_uuids.end (); ++it) {
+	
                 id = recents [*it];
                 info = factories [id];
 
-                ui_create_factory_menu_entry (info, id, GTK_MENU_SHELL (_factory_menu), true, true);
+                ui_create_factory_menu_entry (info, id, GTK_MENU_SHELL (_factory_menu), true, (langs [info.lang] > 1));
 
                 if (use_submenus) {
                     MapStringVectorSizeT::iterator g = groups.find (info.lang);
                     if (g != groups.end () && g->second.size () >= 1) {
                         g->second.push_back (id);
-                        use_submenus = true;
                     }
                 }
             }
@@ -2799,7 +2915,7 @@ slot_show_factory_menu (const std::vector <PanelFactoryInfo> &factories)
             for (i = 0; i < it->second.size (); ++i) {
                 id = it->second [i];
                 info = factories [id];
-                ui_create_factory_menu_entry (info, id, GTK_MENU_SHELL (submenu ? submenu : _factory_menu), !submenu, submenu || !use_submenus);
+                ui_create_factory_menu_entry (info, id, GTK_MENU_SHELL (submenu ? submenu : _factory_menu), !submenu, (langs [info.lang] > 1));
             }
 
             if (menu_item && submenu) {
@@ -2817,7 +2933,17 @@ slot_show_factory_menu (const std::vector <PanelFactoryInfo> &factories)
         g_signal_connect (G_OBJECT (_factory_menu), "deactivate",
                           G_CALLBACK (ui_factory_menu_deactivate_cb),
                           NULL);
-        gtk_menu_popup (GTK_MENU (_factory_menu), 0, 0, 0, 0, 1, activate_time);
+        
+        if (_tray_icon_clicked && _tray_icon) {
+            while (gtk_main_iteration_do (FALSE));
+            gtk_menu_popup (GTK_MENU (_factory_menu), 0, 0, gtk_status_icon_position_menu, _tray_icon, 1, _tray_icon_clicked_time);
+        }
+        else {
+            gtk_menu_popup (GTK_MENU (_factory_menu), 0, 0, 0, 0, 1, gtk_get_current_event_time ());
+        }
+
+        _tray_icon_clicked = false;
+        
     }
 }
 
@@ -3716,7 +3842,7 @@ int main (int argc, char *argv [])
 
     start_auto_start_helpers ();
 
-    _check_exit_timeout = gtk_timeout_add (500, check_exit_timeout_cb, NULL);
+    // _check_exit_timeout = g_timeout_add (500, check_exit_timeout_cb, NULL);
 
     gdk_threads_enter ();
     gtk_main ();
