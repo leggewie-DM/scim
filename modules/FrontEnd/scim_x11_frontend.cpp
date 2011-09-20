@@ -978,6 +978,7 @@ X11FrontEnd::ims_set_ic_focus_handler (XIMS ims, IMChangeFocusStruct *call_data)
     if (ic->xims_on) {
         start_ic (ic);
     } else {
+    	panel_req_update_factory_info (ic);
         m_panel_client.turn_off (ic->icid);
     }
 
@@ -1086,7 +1087,7 @@ X11FrontEnd::ims_forward_event_handler (XIMS ims, IMForwardEventStruct *call_dat
     // If the ic is not focused, then return.
     if (!is_focused_ic (ic)) {
         SCIM_DEBUG_FRONTEND(1) << "IC " << call_data->icid << " is not focused, focus it first.\n";
-        ims_set_ic_focus_handler (ims, (IMChangeFocusStruct *) call_data);
+        return 1;
     }
 
     XKeyEvent *event = (XKeyEvent*) &(call_data->event);
@@ -1800,7 +1801,10 @@ X11FrontEnd::panel_slot_change_factory (int context, const String &uuid)
         if (uuid.length () == 0 && ic->xims_on) {
             SCIM_DEBUG_FRONTEND (2) << "panel_slot_change_factory : turn off.\n";
             ims_turn_off_ic (ic);
-        } else if (uuid.length ()) {
+        }else if(uuid.length () == 0 && (ic->xims_on == false)){
+    		panel_req_update_factory_info (ic);
+        	m_panel_client.turn_off (ic->icid);        	
+        }else if (uuid.length ()) {
             String encoding = scim_get_locale_encoding (ic->locale);
             String language = scim_get_locale_language (ic->locale);
             if (validate_factory (uuid, encoding)) {
