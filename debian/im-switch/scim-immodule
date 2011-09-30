@@ -15,7 +15,7 @@ XIM_PROGRAM_SETS_ITSELF_AS_DAEMON=yes
 
 gtkimm_exists () {
 	# check if any immodules installed
-	for dir in /usr/lib*/gtk-2.0/2.*/immodules; do
+	for dir in /usr/lib/gtk-2.0/2.*/immodules /usr/lib/@DEB_HOST_MULTIARCH@/gtk-2.0/2.*/immodules; do
 		if [ -r ${dir}/im-$1.so ]; then
 			return 0
 		fi
@@ -33,7 +33,7 @@ fi
 
 qtimm_exists () {
 	# check if any immodule installed
-	for dir in /usr/lib*/qt*/plugins/inputmethods; do
+	for dir in /usr/lib/qt*/plugins/inputmethods /usr/lib/@DEB_HOST_MULTIARCH@/qt*/plugins/inputmethods; do
 		if [ -r ${dir}/$1.so ]; then
 			 return 0
 		fi
@@ -50,4 +50,3 @@ else
 fi
 
 DEPENDS="scim,scim-gtk2-immodule,scim-qtimm,scim-anthy|scim-canna|scim-chewing|scim-pinyin|scim-hangul|scim-prime|scim-skk|scim-tables-additional|scim-m17n|scim-uim|scim-tables-ja|scim-tables-ko|scim-tables-zh"
-
