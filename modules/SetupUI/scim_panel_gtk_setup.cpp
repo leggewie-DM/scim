@@ -151,7 +151,10 @@ static GtkWidget * __widget_default_sticked           = 0;
 static GtkWidget * __widget_show_tray_icon            = 0;
 static GtkWidget * __widget_font                      = 0;
 
+#if GTK_CHECK_VERSION(2, 12, 0)
+#else
 static GtkTooltips * __widget_tooltips                = 0;
+#endif
 
 enum ToolbarShowFlavourType {
     SCIM_TOOLBAR_SHOW_ALWAYS,
@@ -199,7 +202,10 @@ create_setup_window ()
         GtkWidget *label;
         GtkWidget *hbox;
 
+#if GTK_CHECK_VERSION(2, 12, 0)
+#else
         __widget_tooltips = gtk_tooltips_new ();
+#endif
 
         // Create the vbox for the first page.
         page = gtk_vbox_new (FALSE, 0);
@@ -231,6 +237,15 @@ create_setup_window ()
         gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 0);
         gtk_misc_set_padding (GTK_MISC (label), 4, 0);
  
+#if GTK_CHECK_VERSION(2, 24, 0)
+        __widget_toolbar_show_behaviour = gtk_combo_box_text_new ();
+        gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (__widget_toolbar_show_behaviour), 
+                                   _(__toolbar_show_behaviour_text[SCIM_TOOLBAR_SHOW_ALWAYS]));
+        gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (__widget_toolbar_show_behaviour),
+                                   _(__toolbar_show_behaviour_text[SCIM_TOOLBAR_SHOW_ON_DEMAND]));
+        gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (__widget_toolbar_show_behaviour),
+                                   _(__toolbar_show_behaviour_text[SCIM_TOOLBAR_SHOW_NEVER]));
+#else
         __widget_toolbar_show_behaviour = gtk_combo_box_new_text ();
         gtk_combo_box_append_text (GTK_COMBO_BOX (__widget_toolbar_show_behaviour), 
                                    _(__toolbar_show_behaviour_text[SCIM_TOOLBAR_SHOW_ALWAYS]));
@@ -238,6 +253,7 @@ create_setup_window ()
                                    _(__toolbar_show_behaviour_text[SCIM_TOOLBAR_SHOW_ON_DEMAND]));
         gtk_combo_box_append_text (GTK_COMBO_BOX (__widget_toolbar_show_behaviour),
                                    _(__toolbar_show_behaviour_text[SCIM_TOOLBAR_SHOW_NEVER]));
+#endif
         gtk_widget_show (__widget_toolbar_show_behaviour);
         gtk_box_pack_start (GTK_BOX (hbox), __widget_toolbar_show_behaviour, FALSE, FALSE, 0);
         gtk_label_set_mnemonic_widget (GTK_LABEL (label), __widget_toolbar_show_behaviour);
@@ -415,6 +431,75 @@ create_setup_window ()
                           NULL);
 
         // Set all tooltips.
+#if GTK_CHECK_VERSION(2, 12, 0)
+        gtk_widget_set_tooltip_text (__widget_toolbar_show_behaviour,
+                              _("If option \"Always\" is selected, "
+                                "the toolbar will always be shown on the screen. "
+                                "If option \"On demand\" is selected, it will only be shown when SCIM "
+                                "is activated. "
+                                "If option \"Never\" is selected, it will never be shown."));
+
+        gtk_widget_set_tooltip_text (__widget_toolbar_auto_snap,
+                              _("If this option is checked, "
+                                "the toolbar will be snapped to "
+                                "the screen border."));
+
+
+        gtk_widget_set_tooltip_text (__widget_toolbar_hide_timeout,
+                              _("The toolbar will be hidden out after "
+                                "this timeout is elapsed. "
+                                "This option is only valid when "
+                                "\"Always show\" is selected. "
+                                "Set to zero to disable this behavior."));
+
+        gtk_widget_set_tooltip_text (__widget_toolbar_show_factory_icon,
+                              _("If this option is checked, "
+                                "the input method icon will be showed on the toolbar."));
+
+        gtk_widget_set_tooltip_text (__widget_toolbar_show_factory_name,
+                              _("If this option is checked, "
+                                "the input method name will be showed on the toolbar."));
+
+        gtk_widget_set_tooltip_text (__widget_toolbar_show_stick_icon,
+                              _("If this option is checked, "
+                                "the stick icon will be showed on the toolbar."));
+
+        gtk_widget_set_tooltip_text (__widget_toolbar_show_menu_icon,
+                              _("If this option is checked, "
+                                "the menu icon will be showed on the toolbar."));
+
+        gtk_widget_set_tooltip_text (__widget_toolbar_show_help_icon,
+                              _("If this option is checked, "
+                                "the help icon will be showed on the toolbar."));
+
+        gtk_widget_set_tooltip_text (__widget_toolbar_show_property_label,
+                              _("If this option is checked, "
+                                "the text label of input method properties will be showed on the toolbar."));
+
+        gtk_widget_set_tooltip_text (__widget_lookup_table_embedded,
+                              _("If this option is checked, "
+                                "the lookup table will be embedded into "
+                                "the input window."));
+
+        gtk_widget_set_tooltip_text (__widget_lookup_table_vertical,
+                              _("If this option is checked, "
+                                "the lookup table will be displayed "
+                                "vertically."));
+
+        gtk_widget_set_tooltip_text (__widget_show_tray_icon,
+                              _("If this option is checked, "
+                                "the tray icon will be showed on the desktop's taskbar."));
+
+        gtk_widget_set_tooltip_text (__widget_default_sticked,
+                              _("If this option is checked, "
+                                "the toolbar, input and lookup table "
+                                "windows will be sticked to "
+                                "its original position."));
+
+        gtk_widget_set_tooltip_text (__widget_font,
+                              _("The font setting will be used in "
+                                "the input and lookup table windows."));
+#else
         gtk_tooltips_set_tip (__widget_tooltips, __widget_toolbar_show_behaviour,
                               _("If option \"Always\" is selected, "
                                 "the toolbar will always be shown on the screen. "
@@ -422,65 +507,68 @@ create_setup_window ()
                                 "is activated. "
                                 "If option \"Never\" is selected, it will never be shown."), NULL);
 
-        gtk_tooltips_set_tip (__widget_tooltips, __widget_toolbar_auto_snap,
+        gtk_tooltip_set_tip (__widget_tooltips, __widget_toolbar_auto_snap,
                               _("If this option is checked, "
                                 "the toolbar will be snapped to "
-                                "the screen border."), NULL);
+                                "the screen border.", NULL));
 
-        gtk_tooltips_set_tip (__widget_tooltips, __widget_toolbar_hide_timeout,
+
+        gtk_tooltip_set_tip (__widget_tooltips, __widget_toolbar_hide_timeout,
                               _("The toolbar will be hidden out after "
                                 "this timeout is elapsed. "
                                 "This option is only valid when "
                                 "\"Always show\" is selected. "
-                                "Set to zero to disable this behavior."), NULL);
+                                "Set to zero to disable this behavior.", NULL));
 
-        gtk_tooltips_set_tip (__widget_tooltips, __widget_toolbar_show_factory_icon,
+        gtk_tooltip_set_tip (__widget_tooltips, __widget_toolbar_show_factory_icon,
                               _("If this option is checked, "
-                                "the input method icon will be showed on the toolbar."), NULL);
+                                "the input method icon will be showed on the toolbar.", NULL));
 
-        gtk_tooltips_set_tip (__widget_tooltips, __widget_toolbar_show_factory_name,
+        gtk_tooltip_set_tip (__widget_tooltips, __widget_toolbar_show_factory_name,
                               _("If this option is checked, "
-                                "the input method name will be showed on the toolbar."), NULL);
+                                "the input method name will be showed on the toolbar.", NULL));
 
-        gtk_tooltips_set_tip (__widget_tooltips, __widget_toolbar_show_stick_icon,
+        gtk_tooltip_set_tip (__widget_tooltips, __widget_toolbar_show_stick_icon,
                               _("If this option is checked, "
-                                "the stick icon will be showed on the toolbar."), NULL);
+                                "the stick icon will be showed on the toolbar.", NULL));
 
-        gtk_tooltips_set_tip (__widget_tooltips, __widget_toolbar_show_menu_icon,
+        gtk_tooltip_set_tip (__widget_tooltips, __widget_toolbar_show_menu_icon,
                               _("If this option is checked, "
-                                "the menu icon will be showed on the toolbar."), NULL);
+                                "the menu icon will be showed on the toolbar.", NULL));
 
-        gtk_tooltips_set_tip (__widget_tooltips, __widget_toolbar_show_help_icon,
+        gtk_tooltip_set_tip (__widget_tooltips, __widget_toolbar_show_help_icon,
                               _("If this option is checked, "
-                                "the help icon will be showed on the toolbar."), NULL);
+                                "the help icon will be showed on the toolbar.", NULL));
 
-        gtk_tooltips_set_tip (__widget_tooltips, __widget_toolbar_show_property_label,
+        gtk_tooltip_set_tip (__widget_tooltips, __widget_toolbar_show_property_label,
                               _("If this option is checked, "
-                                "the text label of input method properties will be showed on the toolbar."), NULL);
+                                "the text label of input method properties will be showed on the toolbar.", NULL));
 
-        gtk_tooltips_set_tip (__widget_tooltips, __widget_lookup_table_embedded,
+        gtk_tooltip_set_tip (__widget_tooltips, __widget_lookup_table_embedded,
                               _("If this option is checked, "
                                 "the lookup table will be embedded into "
-                                "the input window."), NULL);
+                                "the input window.", NULL));
 
-        gtk_tooltips_set_tip (__widget_tooltips, __widget_lookup_table_vertical,
+        gtk_tooltip_set_tip (__widget_tooltips, __widget_lookup_table_vertical,
                               _("If this option is checked, "
                                 "the lookup table will be displayed "
-                                "vertically."), NULL);
+                                "vertically.", NULL));
 
-        gtk_tooltips_set_tip (__widget_tooltips, __widget_show_tray_icon,
+        gtk_tooltip_set_tip (__widget_tooltips, __widget_show_tray_icon,
                               _("If this option is checked, "
-                                "the tray icon will be showed on the desktop's taskbar."), NULL);
+                                "the tray icon will be showed on the desktop's taskbar.", NULL));
 
-        gtk_tooltips_set_tip (__widget_tooltips, __widget_default_sticked,
+        gtk_tooltip_set_tip (__widget_tooltips, __widget_default_sticked,
                               _("If this option is checked, "
                                 "the toolbar, input and lookup table "
                                 "windows will be sticked to "
-                                "its original position."),NULL);
+                                "its original position.", NULL));
 
-        gtk_tooltips_set_tip (__widget_tooltips, __widget_font,
+        gtk_tooltip_set_tip (__widget_tooltips, __widget_font,
                               _("The font setting will be used in "
-                                "the input and lookup table windows."), NULL);
+                                "the input and lookup table windows.", NULL));
+#endif
+
 
         window = page;
 

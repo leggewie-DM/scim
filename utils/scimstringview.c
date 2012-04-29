@@ -4,12 +4,16 @@
 #include <pango/pango.h>
 
 #include <glib.h>
+#include <gtk/gtk.h>
+#if GTK_CHECK_VERSION(2, 22, 0)
+#else
 #include <gtk/gtkmain.h>
 #include <gtk/gtksettings.h>
 #include <gtk/gtksignal.h>
 #include <gtk/gtkwindow.h>
 #include <gtk/gtkgc.h>
 #include <gtk/gtkstyle.h>
+#endif
 
 #include "scim_private.h"
 #include "scimstringview.h"
@@ -65,11 +69,26 @@ static void   scim_string_view_realize         (GtkWidget        *widget);
 static void   scim_string_view_unrealize       (GtkWidget        *widget);
 static void   scim_string_view_size_request    (GtkWidget        *widget,
                                                 GtkRequisition   *requisition);
+#if GTK_CHECK_VERSION(3, 0, 0)
+static void   scim_widget_get_preferred_width  (GtkWidget        *widget,
+                                                gint             *minimal_width,
+                                                gint             *natural_width);
+static void   scim_widget_get_preferred_height (GtkWidget        *widget,
+                                                gint             *minimal_height,
+                                                gint             *natural_height);
+#endif
 static void   scim_string_view_size_allocate   (GtkWidget        *widget,
                                                 GtkAllocation    *allocation);
+#if GTK_CHECK_VERSION(3, 0, 0)
+static void   scim_string_view_draw_frame      (GtkWidget        *widget,
+                                                cairo_t          *cr);
+static gint   scim_string_view_draw            (GtkWidget        *widget,
+                                                cairo_t          *cr);
+#else
 static void   scim_string_view_draw_frame      (GtkWidget        *widget);
 static gint   scim_string_view_expose          (GtkWidget        *widget,
                                                 GdkEventExpose   *event);
+#endif
 static gint   scim_string_view_button_press    (GtkWidget        *widget,
                                                 GdkEventButton   *event);
 static gint   scim_string_view_focus_in        (GtkWidget        *widget,
@@ -165,12 +184,19 @@ static void
 scim_string_view_class_init (ScimStringViewClass *class)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (class);
+
+#if GTK_CHECK_VERSION(3, 0, 0)
+#else
   GtkObjectClass *object_class;
+#endif
   GtkWidgetClass *widget_class;
 
+#if GTK_CHECK_VERSION(3, 0, 0)
+#else
   object_class = (GtkObjectClass*) class;
+#endif
   widget_class = (GtkWidgetClass*) class;
-  parent_class = gtk_type_class (GTK_TYPE_WIDGET);
+  parent_class = g_type_class_ref (GTK_TYPE_WIDGET);
 
   gobject_class->finalize = scim_string_view_finalize;
   gobject_class->set_property = scim_string_view_set_property;
@@ -178,9 +204,18 @@ scim_string_view_class_init (ScimStringViewClass *class)
 
   widget_class->realize = scim_string_view_realize;
   widget_class->unrealize = scim_string_view_unrealize;
+#if GTK_CHECK_VERSION(3, 0, 0)
+  widget_class->get_preferred_width = scim_widget_get_preferred_width;
+  widget_class->get_preferred_height = scim_widget_get_preferred_height;
+#else
   widget_class->size_request = scim_string_view_size_request;
+#endif
   widget_class->size_allocate = scim_string_view_size_allocate;
+#if GTK_CHECK_VERSION(3, 0, 0)
+  widget_class->draw = scim_string_view_draw;
+#else
   widget_class->expose_event = scim_string_view_expose;
+#endif
   widget_class->button_press_event = scim_string_view_button_press;
   widget_class->focus_in_event = scim_string_view_focus_in;
   widget_class->focus_out_event = scim_string_view_focus_out;
@@ -287,9 +322,13 @@ scim_string_view_class_init (ScimStringViewClass *class)
                                                         _("The contents of the string view"),
                                                         "",
                                                         G_PARAM_READABLE | G_PARAM_WRITABLE));
-  
+
   string_view_signals[MOVE_CURSOR] = g_signal_new ("move_cursor",
+#if GTK_CHECK_VERSION(3, 0, 0)
+                                        G_TYPE_FROM_CLASS (gobject_class),
+#else
                                         G_TYPE_FROM_CLASS (object_class),
+#endif
                                         G_SIGNAL_RUN_FIRST,
                                         G_STRUCT_OFFSET (ScimStringViewClass, move_cursor),
                                         NULL,
@@ -406,7 +445,11 @@ scim_string_view_get_property (GObject         *object,
 static void
 scim_string_view_init (ScimStringView *string_view)
 {
+#if GTK_CHECK_VERSION(2, 18, 0)
+  gtk_widget_set_can_focus (GTK_WIDGET (string_view), TRUE);
+#else
   GTK_WIDGET_SET_FLAGS (string_view, GTK_CAN_FOCUS);
+#endif
 
   string_view->text_size = MIN_SIZE;
   string_view->text = g_malloc (string_view->text_size);
@@ -456,7 +499,11 @@ scim_string_view_realize (GtkWidget *widget)
   GdkWindowAttr attributes;
   gint attributes_mask;
 
+#if GTK_CHECK_VERSION(2, 20, 0)
+  gtk_widget_set_realized (widget, TRUE);
+#else
   GTK_WIDGET_SET_FLAGS (widget, GTK_REALIZED);
+#endif
   string_view = SCIM_STRING_VIEW (widget);
 
   attributes.window_type = GDK_WINDOW_CHILD;
@@ -465,31 +512,63 @@ scim_string_view_realize (GtkWidget *widget)
 
   attributes.wclass = GDK_INPUT_OUTPUT;
   attributes.visual = gtk_widget_get_visual (widget);
+#if GTK_CHECK_VERSION(3, 0, 0)
+#else
   attributes.colormap = gtk_widget_get_colormap (widget);
+#endif
   attributes.event_mask = gtk_widget_get_events (widget);
   attributes.event_mask |= (GDK_EXPOSURE_MASK |
                             GDK_BUTTON_PRESS_MASK |
                             GDK_BUTTON_RELEASE_MASK); 
                             
+#if GTK_CHECK_VERSION(3, 0, 0)
+  attributes_mask = GDK_WA_X | GDK_WA_Y | GDK_WA_VISUAL;
+#else
   attributes_mask = GDK_WA_X | GDK_WA_Y | GDK_WA_VISUAL | GDK_WA_COLORMAP;
+#endif
 
+#if GTK_CHECK_VERSION(3, 0, 0)
+  gtk_widget_set_window (widget, gdk_window_new (gtk_widget_get_parent_window (widget), &attributes, attributes_mask));
+#else
   widget->window = gdk_window_new (gtk_widget_get_parent_window (widget), &attributes, attributes_mask);
+#endif
+#if GTK_CHECK_VERSION(2, 14, 0)
+  gdk_window_set_user_data (gtk_widget_get_window (widget), string_view);
+#else
   gdk_window_set_user_data (widget->window, string_view);
+#endif
 
   get_text_area_size (string_view, &attributes.x, &attributes.y, &attributes.width, &attributes.height);
 
   attributes.cursor = gdk_cursor_new (GDK_XTERM);
   attributes_mask |= GDK_WA_CURSOR;
 
+#if GTK_CHECK_VERSION(2, 14, 0)
+  string_view->text_area = gdk_window_new (gtk_widget_get_window (widget), &attributes, attributes_mask);
+#else
   string_view->text_area = gdk_window_new (widget->window, &attributes, attributes_mask);
+#endif
   gdk_window_set_user_data (string_view->text_area, string_view);
 
   gdk_cursor_unref (attributes.cursor);
 
-  widget->style = gtk_style_attach (widget->style, widget->window);
+#if GTK_CHECK_VERSION(3, 0, 0)
+  GtkStyleContext *style = gtk_widget_get_style_context (widget);
+  GdkRGBA bg_color;
+  gtk_style_context_get_background_color (style, gtk_widget_get_state (widget), &bg_color);
+  gdk_window_set_background_rgba (gtk_widget_get_window (widget), &bg_color);
+  gdk_window_set_background_rgba (string_view->text_area, &bg_color);
+#else
+  widget->style = gtk_style_attach (widget->style, gtk_widget_get_window (widget));
 
+#if GTK_CHECK_VERSION(2, 14, 0)
+  gdk_window_set_background (gtk_widget_get_window (widget), &widget->style->base[gtk_widget_get_state (widget)]);
+  gdk_window_set_background (string_view->text_area, &widget->style->base[gtk_widget_get_state (widget)]);
+#else
   gdk_window_set_background (widget->window, &widget->style->base[GTK_WIDGET_STATE (widget)]);
   gdk_window_set_background (string_view->text_area, &widget->style->base[GTK_WIDGET_STATE (widget)]);
+#endif
+#endif
 
   gdk_window_show (string_view->text_area);
 
@@ -528,8 +607,16 @@ get_borders (ScimStringView *string_view,
 
   if (string_view->has_frame)
     {
+#if GTK_CHECK_VERSION(3, 0, 0)
+      GtkStyleContext *style_context = gtk_widget_get_style_context (widget);
+      GtkBorder border;
+      gtk_style_context_get_border (style_context, gtk_widget_get_state (widget), &border);
+      *xborder = border.left;
+      *yborder = border.top;
+#else
       *xborder = widget->style->xthickness;
       *yborder = widget->style->ythickness;
+#endif
     }
   else
     {
@@ -557,7 +644,11 @@ scim_string_view_size_request (GtkWidget      *widget,
  
   context = gtk_widget_get_pango_context (widget);
   metrics = pango_context_get_metrics (context,
+#if GTK_CHECK_VERSION(3, 0, 0)
+                                       pango_context_get_font_description (context),
+#else
                                        widget->style->font_desc,
+#endif
                                        pango_context_get_language (context));
 
   string_view->ascent = pango_font_metrics_get_ascent (metrics);
@@ -591,6 +682,28 @@ scim_string_view_size_request (GtkWidget      *widget,
   pango_font_metrics_unref (metrics);
 }
 
+#if GTK_CHECK_VERSION(3, 0, 0)
+static void
+scim_widget_get_preferred_width (GtkWidget *widget,
+                                 gint      *minimal_width,
+                                 gint      *natural_width)
+{
+    GtkRequisition requisition;
+    scim_string_view_size_request (widget, &requisition);
+    *minimal_width = *natural_width = requisition.width;
+}
+
+static void
+scim_widget_get_preferred_height (GtkWidget *widget,
+                                  gint      *minimal_height,
+                                  gint      *natural_height)
+{
+    GtkRequisition requisition;
+    scim_string_view_size_request (widget, &requisition);
+    *minimal_height = *natural_height = requisition.height;
+}
+#endif
+
 static void
 get_text_area_size (ScimStringView *string_view,
                     gint     *x,
@@ -613,7 +726,15 @@ get_text_area_size (ScimStringView *string_view,
     *y = yborder;
   
   if (width)
-    *width = GTK_WIDGET (string_view)->allocation.width - xborder * 2;
+    {
+#if GTK_CHECK_VERSION(3, 0, 0)
+      GtkAllocation allocation;
+      gtk_widget_get_allocation (widget, &allocation);
+      *width = allocation.width - xborder * 2;
+#else
+      *width = GTK_WIDGET (string_view)->allocation.width - xborder * 2;
+#endif
+    }
 
   if (height)
     *height = requisition.height - yborder * 2;
@@ -631,14 +752,36 @@ get_widget_window_size (ScimStringView *string_view,
       
   gtk_widget_get_child_requisition (widget, &requisition);
 
+#if GTK_CHECK_VERSION(3, 0, 0)
+  GtkAllocation allocation;
+  gtk_widget_get_allocation (widget, &allocation);
+#else
+#endif
+
   if (x)
-    *x = widget->allocation.x;
+    {
+#if GTK_CHECK_VERSION(3, 0, 0)
+      *x = allocation.x;
+#else
+      *x = widget->allocation.x;
+#endif
+    }
 
   if (y)
-    *y = widget->allocation.y + (widget->allocation.height - requisition.height) / 2;
+    {
+#if GTK_CHECK_VERSION(3, 0, 0)
+        *y = allocation.y + (allocation.height - requisition.height) / 2;
+#else
+        *y = widget->allocation.y + (widget->allocation.height - requisition.height) / 2;
+#endif
+    }
 
   if (width)
+#if GTK_CHECK_VERSION(3, 0, 0)
+    *width = allocation.width;
+#else
     *width = widget->allocation.width;
+#endif
 
   if (height)
     *height = requisition.height;
@@ -650,9 +793,17 @@ scim_string_view_size_allocate (GtkWidget     *widget,
 {
   ScimStringView *string_view = SCIM_STRING_VIEW (widget);
   
+#if GTK_CHECK_VERSION(3, 0, 0)
+  gtk_widget_set_allocation (widget, allocation);
+#else
   widget->allocation = *allocation;
+#endif
   
+#if GTK_CHECK_VERSION(2, 20, 0)
+  if (gtk_widget_get_realized (widget))
+#else
   if (GTK_WIDGET_REALIZED (widget))
+#endif
     {
       /* We call gtk_widget_get_child_requisition, since we want (for
        * backwards compatibility reasons) the realization here to
@@ -662,7 +813,11 @@ scim_string_view_size_allocate (GtkWidget     *widget,
 
       get_widget_window_size (string_view, &x, &y, &width, &height);
       
+#if GTK_CHECK_VERSION(2, 14, 0)
+      gdk_window_move_resize (gtk_widget_get_window (widget),
+#else
       gdk_window_move_resize (widget->window,
+#endif
                               x, y, width, height);   
 
       get_text_area_size (string_view, &x, &y, &width, &height);
@@ -675,7 +830,11 @@ scim_string_view_size_allocate (GtkWidget     *widget,
 }
 
 static void
+#if GTK_CHECK_VERSION(3, 0, 0)
+scim_string_view_draw_frame (GtkWidget *widget, cairo_t *cr)
+#else
 scim_string_view_draw_frame (GtkWidget *widget)
+#endif
 {
   gint x = 0, y = 0;
   gint width, height;
@@ -687,9 +846,20 @@ scim_string_view_draw_frame (GtkWidget *widget)
                         "focus-line-width", &focus_width,
                         NULL);
   
+#if GTK_CHECK_VERSION(2, 24, 0)
+  width = gdk_window_get_width(gtk_widget_get_window (widget));
+  height = gdk_window_get_height(gtk_widget_get_window (widget));
+#elif GTK_CHECK_VERSION(2, 14, 0)
+  gdk_window_get_size (gtk_widget_get_window (widget), &width, &height);
+#else
   gdk_window_get_size (widget->window, &width, &height);
+#endif
   
+#if GTK_CHECK_VERSION(2, 18, 0)
+  if (gtk_widget_has_focus (widget) && !interior_focus)
+#else
   if (GTK_WIDGET_HAS_FOCUS (widget) && !interior_focus)
+#endif
     {
       x += focus_width;
       y += focus_width;
@@ -697,42 +867,96 @@ scim_string_view_draw_frame (GtkWidget *widget)
       height -= 2 * focus_width;
     }
 
+#if GTK_CHECK_VERSION(3, 0, 0)
+  GtkStyleContext *style = gtk_widget_get_style_context(widget);
+  gtk_style_context_save (style);
+  gtk_style_context_set_state (style, GTK_STATE_NORMAL);
+  gtk_render_frame (style, cr, x, y, width, height);
+#else
+#if GTK_CHECK_VERSION(2, 14, 0)
+  gtk_paint_shadow (widget->style, gtk_widget_get_window (widget),
+#else
   gtk_paint_shadow (widget->style, widget->window,
+#endif
                     GTK_STATE_NORMAL, GTK_SHADOW_IN,
                     NULL, widget, "entry",
                     x, y, width, height);
+#endif
 
+#if GTK_CHECK_VERSION(2, 18, 0)
+  if (gtk_widget_has_focus (widget) && !interior_focus)
+#else
   if (GTK_WIDGET_HAS_FOCUS (widget) && !interior_focus)
+#endif
     {
       x -= focus_width;
       y -= focus_width;
       width += 2 * focus_width;
       height += 2 * focus_width;
       
+#if GTK_CHECK_VERSION(3, 0, 0)
+      GtkStyleContext *style = gtk_widget_get_style_context(widget);
+      gtk_style_context_save (style);
+      gtk_style_context_set_state (style, gtk_widget_get_state (widget));
+      gtk_render_focus (style, cr, 0, 0, width, height);
+#else
+#if GTK_CHECK_VERSION(2, 18, 0)
+      gtk_paint_focus (widget->style, gtk_widget_get_window (widget), gtk_widget_get_state (widget), 
+#elif GTK_CHECK_VERSION(2, 14, 0)
+      gtk_paint_focus (widget->style, gtk_widget_get_window (widget), GTK_WIDGET_STATE (widget), 
+#else
       gtk_paint_focus (widget->style, widget->window, GTK_WIDGET_STATE (widget), 
+#endif
                        NULL, widget, "entry",
                        0, 0, width, height);
+#endif
     }
 }
 
 static gint
+#if GTK_CHECK_VERSION(3, 0, 0)
+scim_string_view_draw (GtkWidget      *widget,
+                       cairo_t        *cr)
+#else
 scim_string_view_expose (GtkWidget      *widget,
-                  GdkEventExpose *event)
+                         GdkEventExpose *event)
+#endif
 {
   ScimStringView *string_view = SCIM_STRING_VIEW (widget);
 
+#if GTK_CHECK_VERSION(3, 0, 0)
+  if (gtk_cairo_should_draw_window (cr, gtk_widget_get_window (widget)))
+    scim_string_view_draw_frame (widget, cr);
+  else if (gtk_cairo_should_draw_window (cr, string_view->text_area))
+#else
+#if GTK_CHECK_VERSION(2, 14, 0)
+  if (gtk_widget_get_window (widget) == event->window)
+#else
   if (widget->window == event->window)
+#endif
     scim_string_view_draw_frame (widget);
   else if (string_view->text_area == event->window)
+#endif
     {
       gint area_width, area_height;
 
       get_text_area_size (string_view, NULL, NULL, &area_width, &area_height);
 
+#if GTK_CHECK_VERSION(3, 0, 0)
+      GtkStyleContext *style = gtk_widget_get_style_context(widget);
+      gtk_style_context_save (style);
+      gtk_style_context_set_state (style, gtk_widget_get_state (widget));
+      gtk_render_frame (style, cr, 0, 0, area_width, area_height);
+#else
       gtk_paint_flat_box (widget->style, string_view->text_area, 
+#if GTK_CHECK_VERSION(2, 18, 0)
+                          gtk_widget_get_state (widget), GTK_SHADOW_NONE,
+#else
                           GTK_WIDGET_STATE(widget), GTK_SHADOW_NONE,
+#endif
                           NULL, widget, "entry_bg", 
                           0, 0, area_width, area_height);
+#endif
       
       scim_string_view_draw_text (SCIM_STRING_VIEW (widget));
 
@@ -820,10 +1044,27 @@ scim_string_view_state_changed (GtkWidget      *widget,
 {
   ScimStringView *string_view = SCIM_STRING_VIEW (widget);
   
+#if GTK_CHECK_VERSION(2, 20, 0)
+  if (gtk_widget_get_realized (widget))
+#else
   if (GTK_WIDGET_REALIZED (widget))
+#endif
     {
+#if GTK_CHECK_VERSION(3, 0, 0)
+      GtkStyleContext *style = gtk_widget_get_style_context (widget);
+      GdkRGBA bg_color;
+      gtk_style_context_get_background_color (style, gtk_widget_get_state (widget), &bg_color);
+      gdk_window_set_background_rgba (gtk_widget_get_window (widget), &bg_color);
+      gdk_window_set_background_rgba (string_view->text_area, &bg_color);
+#else
+#if GTK_CHECK_VERSION(2, 18, 0)
+      gdk_window_set_background (gtk_widget_get_window (widget), &widget->style->base[gtk_widget_get_state (widget)]);
+      gdk_window_set_background (string_view->text_area, &widget->style->base[gtk_widget_get_state (widget)]);
+#else
       gdk_window_set_background (widget->window, &widget->style->base[GTK_WIDGET_STATE (widget)]);
       gdk_window_set_background (string_view->text_area, &widget->style->base[GTK_WIDGET_STATE (widget)]);
+#endif
+#endif
     }
 
   gtk_widget_queue_draw (widget);
@@ -836,12 +1077,29 @@ scim_string_view_style_set        (GtkWidget      *widget,
 {
   ScimStringView *string_view = SCIM_STRING_VIEW (widget);
 
+#if GTK_CHECK_VERSION(2, 20, 0)
+  if (previous_style && gtk_widget_get_realized (widget))
+#else
   if (previous_style && GTK_WIDGET_REALIZED (widget))
+#endif
     {
       scim_string_view_recompute (string_view);
 
+#if GTK_CHECK_VERSION(3, 0, 0)
+      GtkStyleContext *style = gtk_widget_get_style_context (widget);
+      GdkRGBA bg_color;
+      gtk_style_context_get_background_color (style, gtk_widget_get_state (widget), &bg_color);
+      gdk_window_set_background_rgba (gtk_widget_get_window (widget), &bg_color);
+      gdk_window_set_background_rgba (string_view->text_area, &bg_color);
+#else
+#if GTK_CHECK_VERSION(2, 18, 0)
+      gdk_window_set_background (gtk_widget_get_window (widget), &widget->style->base[gtk_widget_get_state (widget)]);
+      gdk_window_set_background (string_view->text_area, &widget->style->base[gtk_widget_get_state (widget)]);
+#else
       gdk_window_set_background (widget->window, &widget->style->base[GTK_WIDGET_STATE (widget)]);
       gdk_window_set_background (string_view->text_area, &widget->style->base[GTK_WIDGET_STATE (widget)]);
+#endif
+#endif
     }
 }
 
@@ -977,7 +1235,11 @@ scim_string_view_draw_text (ScimStringView *string_view)
 {
   GtkWidget *widget;
   
+#if GTK_CHECK_VERSION(2, 18, 0)
+  if (gtk_widget_is_drawable (GTK_WIDGET (string_view)))
+#else
   if (GTK_WIDGET_DRAWABLE (string_view))
+#endif
     {
       PangoLayout *layout = scim_string_view_ensure_layout (string_view);
       gint x, y;
@@ -986,10 +1248,22 @@ scim_string_view_draw_text (ScimStringView *string_view)
       
       get_layout_position (string_view, &x, &y);
 
+#if GTK_CHECK_VERSION(3, 0, 0)
+      cairo_t *cr = gdk_cairo_create (string_view->text_area);
+      GdkRGBA rgba;
+      gtk_style_context_get_color (gtk_widget_get_style_context (widget),
+                                   gtk_widget_get_state (widget),
+                                   &rgba);
+      gdk_cairo_set_source_rgba (cr, &rgba);
+      cairo_move_to (cr, x, y);
+      pango_cairo_show_layout (cr, layout);
+      cairo_destroy (cr);
+#else
       gdk_draw_layout (string_view->text_area, widget->style->text_gc [widget->state],       
                        x, y,
                        layout);
-      
+#endif
+       
       if (string_view->highlight_start >=0 &&
           string_view->highlight_start < string_view->highlight_end &&
           string_view->highlight_start < string_view->text_length)
@@ -1002,9 +1276,15 @@ scim_string_view_draw_text (ScimStringView *string_view)
           const gchar *text = pango_layout_get_text (layout);
           gint start_index = g_utf8_offset_to_pointer (text, start_pos) - text;
           gint end_index = g_utf8_offset_to_pointer (text, end_pos) - text;
+#if GTK_CHECK_VERSION(3, 0, 0)
+          cairo_region_t *clip_region = cairo_region_create ();
+          GdkRGBA selection_rgba;
+          GdkRGBA text_rgba;
+#else
           GdkRegion *clip_region = gdk_region_new ();
           GdkGC *text_gc;
           GdkGC *selection_gc;
+#endif
           PangoLayoutLine *line;
 
           line = pango_layout_get_lines (layout)->data;
@@ -1013,31 +1293,68 @@ scim_string_view_draw_text (ScimStringView *string_view)
 
           pango_layout_get_extents (layout, NULL, &logical_rect);
           
+#if GTK_CHECK_VERSION(3, 0, 0)
+          gtk_style_context_get_background_color (
+              gtk_widget_get_style_context (widget),
+              GTK_STATE_FLAG_ACTIVE,
+              &selection_rgba);
+          gtk_style_context_get_color (
+              gtk_widget_get_style_context (widget),
+              GTK_STATE_ACTIVE,
+              &text_rgba);
+#else
           selection_gc = widget->style->base_gc [GTK_STATE_ACTIVE];
           text_gc = widget->style->text_gc [GTK_STATE_ACTIVE];
+#endif
           
           for (i=0; i < n_ranges; ++i)
             {
+#if GTK_CHECK_VERSION(3, 0, 0)
+              cairo_rectangle_int_t rect;
+#else
               GdkRectangle rect;
+#endif
 
               rect.x = INNER_BORDER - string_view->scroll_offset + ranges[2*i] / PANGO_SCALE;
               rect.y = y;
               rect.width = (ranges[2*i + 1] - ranges[2*i]) / PANGO_SCALE;
               rect.height = logical_rect.height / PANGO_SCALE;
                 
+#if GTK_CHECK_VERSION(3, 0, 0)
+              cairo_t *cr = gdk_cairo_create (string_view->text_area);
+              cairo_set_source_surface (cr, cairo_get_target (cr), 0, 0);
+              cairo_pattern_set_extend (cairo_get_source (cr), CAIRO_EXTEND_REPEAT);
+              gdk_cairo_set_source_rgba (cr, &selection_rgba);
+              cairo_rectangle (cr, rect.x, rect.y, rect.width, rect.height);
+              cairo_fill (cr);
+              cairo_destroy (cr);
+              cairo_region_union_rectangle (clip_region, &rect);
+#else
               gdk_draw_rectangle (string_view->text_area, selection_gc, TRUE,
                                   rect.x, rect.y, rect.width, rect.height);
-
               gdk_region_union_with_rect (clip_region, &rect);
+#endif
+
             }
 
+#if GTK_CHECK_VERSION(3, 0, 0)
+          cairo_t *cr = gdk_cairo_create (string_view->text_area);
+          gdk_cairo_region (cr, clip_region);
+          cairo_clip (cr);
+          gdk_cairo_set_source_rgba (cr, &text_rgba);
+          cairo_move_to (cr, x, y);
+          pango_cairo_show_layout (cr, layout);
+          cairo_destroy (cr);
+          cairo_region_destroy (clip_region);
+#else
           gdk_gc_set_clip_region (text_gc, clip_region);
           gdk_draw_layout (string_view->text_area, text_gc, 
                            x, y,
                            layout);
           gdk_gc_set_clip_region (text_gc, NULL);
-          
           gdk_region_destroy (clip_region);
+#endif
+          
           g_free (ranges);
         }
     }
@@ -1229,14 +1546,24 @@ scim_string_view_draw_insertion_cursor (GtkWidget        *widget,
 #else
 static void
 scim_string_view_draw_insertion_cursor (GtkWidget        *widget,
+#if GTK_CHECK_VERSION(3, 0, 0)
+                                        GdkWindow        *drawable,
+#else
                                         GdkDrawable      *drawable,
+#endif
                                         GdkRectangle     *area,
                                         GdkRectangle     *location,
                                         gboolean          is_primary,
                                         GtkTextDirection  direction,
                                         gboolean          draw_arrow)
 {
+#if GTK_CHECK_VERSION(3, 0, 0)
+    cairo_t *cr = gdk_cairo_create (drawable);
+    gtk_draw_insertion_cursor (widget, cr, location, is_primary, direction, draw_arrow);
+    cairo_destroy (cr);
+#else
     gtk_draw_insertion_cursor (widget, drawable, area, location, is_primary, direction, draw_arrow);
+#endif
 }
 #endif
 
@@ -1248,7 +1575,11 @@ scim_string_view_draw_cursor (ScimStringView  *string_view)
     GTK_TEXT_DIR_LTR : GTK_TEXT_DIR_RTL;
   GtkTextDirection widget_direction = gtk_widget_get_direction (GTK_WIDGET (string_view));
   
+#if GTK_CHECK_VERSION(2, 18, 0)
+  if (gtk_widget_is_drawable (GTK_WIDGET (string_view)))
+#else
   if (GTK_WIDGET_DRAWABLE (string_view))
+#endif
     {
       GtkWidget *widget = GTK_WIDGET (string_view);
       GdkRectangle cursor_location;
@@ -1264,7 +1595,12 @@ scim_string_view_draw_cursor (ScimStringView  *string_view)
       gint x1 = 0;
       gint x2 = 0;
 
+#if GTK_CHECK_VERSION(2, 24, 0)
+      text_area_width = gdk_window_get_width (string_view->text_area);
+      text_area_height = gdk_window_get_height (string_view->text_area);
+#else
       gdk_window_get_size (string_view->text_area, &text_area_width, &text_area_height);
+#endif
 
       scim_string_view_get_cursor_locations (string_view, &strong_x, &weak_x);
 
@@ -1327,7 +1663,11 @@ scim_string_view_draw_cursor (ScimStringView  *string_view)
 static void
 scim_string_view_queue_draw (ScimStringView *string_view)
 {
+#if GTK_CHECK_VERSION(2, 20, 0)
+  if (gtk_widget_get_realized (GTK_WIDGET (string_view)))
+#else
   if (GTK_WIDGET_REALIZED (string_view))
+#endif
     gdk_window_invalidate_rect (string_view->text_area, NULL, FALSE);
 }
 
@@ -1385,10 +1725,18 @@ scim_string_view_adjust_scroll (ScimStringView *string_view)
   PangoLayoutLine *line;
   PangoRectangle logical_rect;
 
+#if GTK_CHECK_VERSION(2, 20, 0)
+  if (!gtk_widget_get_realized (GTK_WIDGET (string_view)))
+#else
   if (!GTK_WIDGET_REALIZED (string_view))
+#endif
     return;
   
+#if GTK_CHECK_VERSION(2, 24, 0)
+  text_area_width = gdk_window_get_width(string_view->text_area);
+#else
   gdk_window_get_size (string_view->text_area, &text_area_width, NULL);
+#endif
   text_area_width -= 2 * INNER_BORDER;
 
   layout = scim_string_view_ensure_layout (string_view);
@@ -1469,7 +1817,7 @@ scim_string_view_move_cursor (ScimStringView *string_view,
 GtkWidget*
 scim_string_view_new (void)
 {
-  return GTK_WIDGET (gtk_type_new (SCIM_TYPE_STRING_VIEW));
+  return GTK_WIDGET (g_object_new (SCIM_TYPE_STRING_VIEW, NULL));
 }
 
 void
@@ -2024,14 +2372,14 @@ blink_cb (gpointer data)
   if (string_view->cursor_visible)
     {
       hide_cursor (string_view);
-      string_view->blink_timeout = gtk_timeout_add (get_cursor_time (string_view) * CURSOR_OFF_MULTIPLIER,
+      string_view->blink_timeout = g_timeout_add (get_cursor_time (string_view) * CURSOR_OFF_MULTIPLIER,
                                                     blink_cb,
                                                     string_view);
     }
   else
     {
       show_cursor (string_view);
-      string_view->blink_timeout = gtk_timeout_add (get_cursor_time (string_view) * CURSOR_ON_MULTIPLIER,
+      string_view->blink_timeout = g_timeout_add (get_cursor_time (string_view) * CURSOR_ON_MULTIPLIER,
                                                     blink_cb,
                                                     string_view);
     }
@@ -2049,7 +2397,7 @@ scim_string_view_check_cursor_blink (ScimStringView *string_view)
     {
       if (!string_view->blink_timeout)
         {
-          string_view->blink_timeout = gtk_timeout_add (get_cursor_time (string_view) * CURSOR_ON_MULTIPLIER,
+          string_view->blink_timeout = g_timeout_add (get_cursor_time (string_view) * CURSOR_ON_MULTIPLIER,
                                                   blink_cb,
                                                   string_view);
           show_cursor (string_view);
@@ -2059,7 +2407,7 @@ scim_string_view_check_cursor_blink (ScimStringView *string_view)
     {
       if (string_view->blink_timeout)  
         { 
-          gtk_timeout_remove (string_view->blink_timeout);
+          g_source_remove (string_view->blink_timeout);
           string_view->blink_timeout = 0;
         }
       

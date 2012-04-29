@@ -1,6 +1,7 @@
 # Process this file with autoconf to produce a configure script
-AC_INIT(scim, 1.4.10, suzhe@tsinghua.org.cn)
+AC_INIT([scim],[1.4.13],[http://sf.net/tracker/?atid=650539&group_id=108454])
 AC_CONFIG_SRCDIR([src/scim.h])
+
 
 ###########################################################
 ##          Some definitions of Version macros.          ##
@@ -8,7 +9,7 @@ AC_CONFIG_SRCDIR([src/scim.h])
 
 SCIM_MAJOR_VERSION=1
 SCIM_MINOR_VERSION=4
-SCIM_MICRO_VERSION=11
+SCIM_MICRO_VERSION=13
 
 SCIM_VERSION=$SCIM_MAJOR_VERSION.$SCIM_MINOR_VERSION.$SCIM_MICRO_VERSION
 
@@ -23,7 +24,7 @@ AC_SUBST(SCIM_VERSION)
 SCIM_CURRENT=10
 
 # increment any time the source changes; set to 0 if you increment CURRENT
-SCIM_REVISION=5
+SCIM_REVISION=6
 
 # increment if any interfaces have been added; set to 0
 # if any interfaces have been removed. removal has 
@@ -64,10 +65,6 @@ AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE,"$GETTEXT_PACKAGE", [The gettext domain])
 AM_INIT_AUTOMAKE
 AM_CONFIG_HEADER([config.h])
 
-# Init gettext
-ALL_LINGUAS="as bn_IN ca cs de es fi fr gu hi it ja kn ko ml mr nl pa pt_BR ru sk sv ta te vi zh_CN zh_TW"
-AM_GNU_GETTEXT
-
 # Init libtool
 LT_CONFIG_LTDL_DIR([libltdl])
 LT_INIT([dlopen])
@@ -84,6 +81,11 @@ AC_SUBST(LIBTOOL_EXPORT_OPTIONS)
 AC_PROG_CXX
 AC_PROG_CC
 AC_LANG(C++)
+
+# Init gettext
+ALL_LINGUAS="as bn_IN ca cs de es fi fr gu hi it ja kn ko ml mr nl pa pt_BR ru sk sv ta te vi zh_CN zh_TW"
+AM_GNU_GETTEXT([external])
+AM_GNU_GETTEXT_VERSION(0.14.1)
 
 # Checks if doxygen is avaiable
 
@@ -220,28 +222,39 @@ PKG_CHECK_MODULES(GTK2, [gtk+-2.0 >= 2.4.0 pango >= 1.1.0 gdk-pixbuf-2.0 >= 2.4.
 			[SCIM_HAS_GTK2=yes],
 			[SCIM_HAS_GTK2=no])
 
+PKG_CHECK_MODULES(GTK3, [gtk+-3.0 >= 3.0.0 pango >= 1.1.0 gdk-pixbuf-2.0 >= 2.4.0],
+			[SCIM_HAS_GTK3=yes],
+			[SCIM_HAS_GTK3=no])
+
 SCIM_HAS_GTK2_2=no
 if test "$SCIM_HAS_GTK2" = "yes"; then
   if $PKG_CONFIG --exists "gtk+-2.0 >= 2.2" ; then
     SCIM_HAS_GTK2_2=yes
-    GTK_VERSION=2.2.0
+    GTK2_VERSION=2.2.0
     AC_DEFINE(GDK_MULTIHEAD_SAFE,1,[Force use of GDK's multihead-safe APIs.])
   fi
   if $PKG_CONFIG --exists "gtk+-2.0 >= 2.3.5" ; then
     SCIM_HAS_GTK2_4=yes
-    GTK_VERSION=2.3.5
+    GTK2_VERSION=2.3.5
     AC_DEFINE(HAVE_GTK_DRAW_INSERTION_CURSOR,1,[Have gtk_draw_insertion_cursor ().])
   fi
-  GTK_BINARY_VERSION=`$PKG_CONFIG --variable=gtk_binary_version gtk+-2.0`
-  GTK_LIBDIR=`$PKG_CONFIG --variable=libdir gtk+-2.0`
-  if test -z "$GTK_LIBDIR)"; then
-    GTK_LIBDIR="$libdir"
-  fi
-  GTK_IM_MODULEDIR=$GTK_LIBDIR/gtk-2.0/immodules
-  AC_SUBST(GTK_LIBDIR)
-  AC_SUBST(GTK_IM_MODULEDIR)
-  AC_SUBST(GTK_VERSION)
-  AC_SUBST(GTK_BINARY_VERSION)
+  GTK2_BINARY_VERSION=`$PKG_CONFIG --variable=gtk_binary_version gtk+-2.0`
+  GTK2_LIBDIR=`$PKG_CONFIG --variable=libdir gtk+-2.0`
+  GTK2_IM_MODULEDIR=$GTK2_LIBDIR/gtk-2.0/immodules
+  AC_SUBST(GTK2_IM_MODULEDIR)
+  # AC_SUBST(GTK2_LIBDIR)
+  # AC_SUBST(GTK2_VERSION)
+  # AC_SUBST(GTK2_BINARY_VERSION)
+fi
+
+if test "$SCIM_HAS_GTK3" = "yes"; then
+  GTK3_VERSION=3.0.0
+  GTK3_BINARY_VERSION=`$PKG_CONFIG --variable=gtk_binary_version gtk+-3.0`
+  GTK3_LIBDIR=`$PKG_CONFIG --variable=libdir gtk+-3.0`
+  GTK3_IM_MODULEDIR=$GTK3_LIBDIR/gtk-3.0/immodules
+  AC_DEFINE(HAVE_GTK_DRAW_INSERTION_CURSOR,1,[Have gtk_draw_insertion_cursor ().])
+
+  AC_SUBST(GTK3_IM_MODULEDIR)
 fi
 
 # Check if we have gthread
@@ -260,10 +273,21 @@ fi
 ###########################################################
 ##             Definiation of compile args.              ##
 ###########################################################
-AC_ARG_WITH(gtk-im-module-dir,
-	    AS_HELP_STRING([--with-gtk-im-module-dir=dir], 
-	    [Select gtk immodule dir]),
-	    GTK_IM_MODULEDIR=$with_gtk_im_module_dir)
+AC_ARG_WITH(gtk2-im-module-dir,
+	    AS_HELP_STRING([--with-gtk2-im-module-dir=dir], 
+	    [Select gtk2 immodule dir]),
+	    GTK2_IM_MODULEDIR=$with_gtk2_im_module_dir)
+
+AC_ARG_WITH(gtk3-im-module-dir,
+	    AS_HELP_STRING([--with-gtk3-im-module-dir=dir], 
+	    [Select gtk3 immodule dir]),
+	    GTK3_IM_MODULEDIR=$with_gtk3_im_module_dir)
+
+AC_ARG_WITH(gtk-version,
+	    AS_HELP_STRING([--with-gtk-version=2 or 3], 
+	    [Select gtk version if both gtk2 and gtk3 are available (default is 3)]),
+	    [WANT_GTK_VERSION=$withval],
+		[WANT_GTK_VERSION=3])
 
 AC_ARG_ENABLE(ld-version-script,
 	      [  --enable-ld-version-script Use ld version script to limit exported symbols], ,
@@ -312,6 +336,10 @@ AC_ARG_ENABLE(filter-sctc,
 AC_ARG_ENABLE(gtk2-immodule,
 	      [  --disable-gtk2-immodule   Do not build GTK2 IMModule], , 
        	      enable_gtk2_immodule=yes)
+
+AC_ARG_ENABLE(gtk3-immodule,
+	      [  --disable-gtk3-immodule   Do not build GTK3 IMModule], , 
+       	      enable_gtk3_immodule=yes)
 
 AC_ARG_ENABLE(panel-gtk,
               [  --disable-panel-gtk       Do not build GTK2 Panel], , 
@@ -402,7 +430,58 @@ else
   enable_gtk2_immodule=no
 fi
 
-if test "$enable_setup_ui" = "yes" -a "$SCIM_HAS_GTK2" = "yes"; then
+if test "$enable_gtk3_immodule" = "yes" -a "$SCIM_HAS_GTK3" = "yes"; then
+  SCIM_BUILD_GTK3_IMMODULE=1
+else
+  SCIM_BUILD_GTK3_IMMODULE=0
+  enable_gtk3_immodule=no
+fi
+
+if test "$SCIM_HAS_GTK3" = "yes" -a "$SCIM_HAS_GTK2" = "yes"; then
+  if test "$WANT_GTK_VERSION" = "2"; then
+	USE_GTK_VERSION="2"
+  else
+	USE_GTK_VERSION="3"
+  fi
+elif test "$SCIM_HAS_GTK3" = "yes"; then
+  USE_GTK_VERSION="3"
+elif test "$SCIM_HAS_GTK2" = "yes"; then
+  USE_GTK_VERSION="2"
+fi
+
+if test "$USE_GTK_VERSION" = "3"; then
+  SCIM_HAS_GTK=yes
+  GTK_LIBDIR=$GTK3_LIBDIR
+  GTK_VERSION=$GTK3_VERSION
+  GTK_MAJOR_VERSION=3
+  GTK_BINARY_VERSION=$GTK3_BINARY_VERSION
+  GTK_CFLAGS=$GTK3_CFLAGS
+  GTK_LIBS=$GTK3_LIBS
+  AC_SUBST(GTK_LIBDIR)
+  AC_SUBST(GTK_VERSION)
+  AC_SUBST(GTK_MAJOR_VERSION)
+  AC_SUBST(GTK_BINARY_VERSION)
+  AC_SUBST(GTK_CFLAGS)
+  AC_SUBST(GTK_LIBS)
+elif test "$USE_GTK_VERSION" = "2"; then
+  SCIM_HAS_GTK=yes
+  GTK_LIBDIR=$GTK2_LIBDIR
+  GTK_VERSION=$GTK2_VERSION
+  GTK_MAJOR_VERSION=2
+  GTK_BINARY_VERSION=$GTK2_BINARY_VERSION
+  GTK_CFLAGS=$GTK2_CFLAGS
+  GTK_LIBS=$GTK2_LIBS
+  AC_SUBST(GTK_LIBDIR)
+  AC_SUBST(GTK_VERSION)
+  AC_SUBST(GTK_MAJOR_VERSION)
+  AC_SUBST(GTK_BINARY_VERSION)
+  AC_SUBST(GTK_CFLAGS)
+  AC_SUBST(GTK_LIBS)
+else
+  SCIM_HAS_GTK=no
+fi
+
+if test "$enable_setup_ui" = "yes" -a "$SCIM_HAS_GTK" = "yes"; then
   SCIM_BUILD_SCIM_SETUP=1
   AC_DEFINE(HAVE_SCIM_SETUP,1,[Have scim-setup program.])
 else
@@ -410,7 +489,7 @@ else
   enable_setup_ui=no
 fi
 
-if test "$SCIM_HAS_GTK2" = "yes"; then
+if test "$SCIM_HAS_GTK" = "yes"; then
   enable_gtk_utils=yes
   SCIM_BUILD_GTK_UTILS=1
 else
@@ -419,7 +498,7 @@ else
 fi
 
 enable_tray_icon=no
-if test "$SCIM_HAS_GTK2_2" = "yes" -a "$no_x" != "yes"; then
+if test \( "$SCIM_HAS_GTK3"="yes" -o "$SCIM_HAS_GTK2_2" = "yes" \) -a "$no_x" != "yes"; then
   enable_tray_icon=yes
   AC_DEFINE(ENABLE_TRAY_ICON,1,[Enable the TrayIcon code.])
 fi
@@ -427,7 +506,7 @@ fi
 SCIM_BUILD_PANEL_GTK=0
 if test "$enable_panel_gtk" != "no"; then
   enable_panel_gtk=no
-  if test "$SCIM_HAS_GTHREAD2" = "yes" -a "$SCIM_HAS_GTK2" = "yes"; then
+  if test "$SCIM_HAS_GTHREAD2" = "yes" -a "$SCIM_HAS_GTK" = "yes"; then
     SCIM_BUILD_PANEL_GTK=1
     enable_panel_gtk=yes
   fi
@@ -466,6 +545,9 @@ AM_CONDITIONAL(SCIM_BUILD_IMENGINE_RAWCODE,
 AM_CONDITIONAL(SCIM_BUILD_GTK2_IMMODULE,
 		[test "$enable_gtk2_immodule" = "yes"])
 
+AM_CONDITIONAL(SCIM_BUILD_GTK3_IMMODULE,
+		[test "$enable_gtk3_immodule" = "yes"])
+
 AM_CONDITIONAL(SCIM_BUILD_FILTER_SCTC,
 		[test "$enable_filter_sctc" = "yes"])
 
@@ -494,6 +576,7 @@ AC_SUBST(SCIM_BUILD_IMENGINE_TABLE)
 AC_SUBST(SCIM_BUILD_IMENGINE_SOCKET)
 AC_SUBST(SCIM_BUILD_FILTER_SCTC)
 AC_SUBST(SCIM_BUILD_GTK2_IMMODULE)
+AC_SUBST(SCIM_BUILD_GTK3_IMMODULE)
 AC_SUBST(SCIM_BUILD_SCIM_SETUP)
 AC_SUBST(SCIM_BUILD_PANEL_GTK)
 AC_SUBST(SCIM_BUILD_GTK_UTILS)
@@ -521,8 +604,6 @@ AC_SUBST(SCIM_TEMPDIR)
 ###########################################################
 AC_SUBST(ac_aux_dir)
 AC_CONFIG_FILES([Makefile
-		 m4/Makefile 
-		 intl/Makefile
 		 po/Makefile.in
 		 src/Makefile
 		 src/scim_types.h
@@ -540,18 +621,14 @@ AC_CONFIG_FILES([Makefile
 	 	 docs/scim.cfg
 	 	 docs/Makefile
 	 	 docs/manual/Makefile
-	 	 docs/manual/zh_CN/Makefile
-		 docs/manual/zh_CN/figures/Makefile
 	 	 configs/Makefile
 		 extras/Makefile
-		 extras/gtk2_immodule/Makefile
+		 extras/gtk_immodule/gtk2/Makefile
+		 extras/gtk_immodule/gtk3/Makefile
 		 extras/setup/Makefile
 		 extras/setup/scim-setup
 		 extras/panel/Makefile
 		 tests/Makefile
-		 intltool-extract
-		 intltool-merge
-		 intltool-update
 		 scim.pc
 		 scim-gtkutils.pc
 		 scim-x11utils.pc
@@ -580,16 +657,20 @@ Module options:
 
   SCTC Filter module       $enable_filter_sctc
 
-  GTK2 Utility Library     $enable_gtk_utils
+  GTK Utility Library      $enable_gtk_utils
   X11 Utility Library      $enable_x11_utils
 
   GTK2 IMModule            $enable_gtk2_immodule
-  GTK2 IMModule dir        $GTK_IM_MODULEDIR
+  GTK2 IMModule dir        $GTK2_IM_MODULEDIR
+
+  GTK3 IMModule            $enable_gtk3_immodule
+  GTK3 IMModule dir        $GTK3_IM_MODULEDIR
+
+  GTK Version              $USE_GTK_VERSION
 
   GUI Setup Utility        $enable_setup_ui
 
-  GTK2 Panel GUI           $enable_panel_gtk
+  GTK Panel GUI            $enable_panel_gtk
 
   Enable TrayIcon          $enable_tray_icon
 ])
-

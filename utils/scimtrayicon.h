@@ -22,7 +22,17 @@
 #ifndef __SCIM_TRAY_ICON_H__
 #define __SCIM_TRAY_ICON_H__
 
+#include <gtk/gtk.h>
+
+#if GTK_CHECK_VERSION(2, 24, 0)
+#else
 #include <gtk/gtkplug.h>
+#endif
+
+#if GTK_CHECK_VERSION(3, 0, 0)
+#include <gtk/gtkx.h>
+#endif
+
 #include <gdk/gdkx.h>
 
 G_BEGIN_DECLS

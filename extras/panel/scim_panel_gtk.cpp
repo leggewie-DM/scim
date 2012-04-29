@@ -277,7 +277,11 @@ static void       ui_command_menu_deactivate_cb        (GtkWidget      *item,
                                                         gpointer        user_data);
 
 #if ENABLE_TRAY_ICON
+#if GTK_CHECK_VERSION(3, 0, 0)
+static void       ui_tray_icon_destroy_cb              (GtkWidget      *object,
+#else
 static void       ui_tray_icon_destroy_cb              (GtkObject      *object,
+#endif
                                                         gpointer        user_data);
 static void       ui_tray_icon_popup_menu_cb           (GtkStatusIcon  *status_icon,
                                                         guint           button, 
@@ -404,7 +408,10 @@ static GtkWidget         *_help_scroll                 = 0;
 static GtkWidget         *_help_area                   = 0;
 static GtkWidget         *_command_menu                = 0;
 
+#if GTK_CHECK_VERSION(2, 12, 0)
+#else
 static GtkTooltips       *_tooltips                    = 0;
+#endif
 
 static PangoFontDescription *_default_font_desc        = 0;
 
@@ -470,10 +477,17 @@ static bool               _ui_initialized              = false;
 
 static int                _lookup_table_index [SCIM_LOOKUP_TABLE_MAX_PAGESIZE+1];
 
+#if GTK_CHECK_VERSION(3, 0, 0)
+static GdkRGBA           _normal_bg;
+static GdkRGBA           _normal_text;
+static GdkRGBA           _active_bg;
+static GdkRGBA           _active_text;
+#else
 static GdkColor           _normal_bg;
 static GdkColor           _normal_text;
 static GdkColor           _active_bg;
 static GdkColor           _active_text;
+#endif
 
 static ConfigModule      *_config_module               = 0;
 static ConfigPointer      _config;
@@ -522,10 +536,17 @@ ui_load_config (void)
     String str;
 
     // Read configurations.
+#if GTK_CHECK_VERSION(3, 0, 0)
+    gdk_rgba_parse (&_normal_bg,   "gray92");
+    gdk_rgba_parse (&_normal_text, "black");
+    gdk_rgba_parse (&_active_bg,   "light blue");
+    gdk_rgba_parse (&_active_text, "black");
+#else
     gdk_color_parse ("gray92",     &_normal_bg);
     gdk_color_parse ("black",      &_normal_text);
     gdk_color_parse ("light blue", &_active_bg);
     gdk_color_parse ("black",      &_active_text);
+#endif
 
     if (_default_font_desc) {
         pango_font_description_free (_default_font_desc);
@@ -541,19 +562,35 @@ ui_load_config (void)
 
         str = _config->read (String (SCIM_CONFIG_PANEL_GTK_COLOR_NORMAL_BG),
                              String ("gray92"));
+#if GTK_CHECK_VERSION(3, 0, 0)
+        gdk_rgba_parse (&_normal_bg, str.c_str ());
+#else
         gdk_color_parse (str.c_str (), &_normal_bg);
+#endif
 
         str = _config->read (String (SCIM_CONFIG_PANEL_GTK_COLOR_NORMAL_TEXT),
                              String ("black"));
+#if GTK_CHECK_VERSION(3, 0, 0)
+        gdk_rgba_parse (&_normal_text, str.c_str ());
+#else
         gdk_color_parse (str.c_str (), &_normal_text);
+#endif
 
         str = _config->read (String (SCIM_CONFIG_PANEL_GTK_COLOR_ACTIVE_BG),
                              String ("light blue"));
+#if GTK_CHECK_VERSION(3, 0, 0)
+        gdk_rgba_parse (&_active_bg, str.c_str ());
+#else
         gdk_color_parse (str.c_str (), &_active_bg);
+#endif
 
         str = _config->read (String (SCIM_CONFIG_PANEL_GTK_COLOR_ACTIVE_TEXT),
                              String ("black"));
+#if GTK_CHECK_VERSION(3, 0, 0)
+        gdk_rgba_parse (&_active_text, str.c_str ());
+#else
         gdk_color_parse (str.c_str (), &_active_text);
+#endif
 
         _toolbar_window_x = _config->read (String (SCIM_CONFIG_PANEL_GTK_TOOLBAR_POS_X),
                                            _toolbar_window_x);
@@ -658,7 +695,10 @@ ui_initialize (void)
     if (_input_window) gtk_widget_destroy (_input_window);
     if (_toolbar_window) gtk_widget_destroy (_toolbar_window);
     if (_help_dialog) gtk_widget_destroy (_help_dialog);
+#if GTK_CHECK_VERSION(2, 12, 0)
+#else
     if (_tooltips) gtk_object_destroy (GTK_OBJECT (_tooltips));
+#endif
 
 #if ENABLE_TRAY_ICON
     if (_tray_icon) {
@@ -673,7 +713,10 @@ ui_initialize (void)
     _input_window = 0;
     _toolbar_window = 0;
     _help_dialog = 0;
+#if GTK_CHECK_VERSION(2, 12, 0)
+#else
     _tooltips = 0;
+#endif
 
 #if GDK_MULTIHEAD_SAFE
     // Initialize the Display and Screen.
@@ -687,8 +730,11 @@ ui_initialize (void)
         GtkWidget *frame;
 
         _input_window = gtk_window_new (GTK_WINDOW_POPUP);
+#if GTK_CHECK_VERSION(3, 0, 0)
+        gtk_widget_override_background_color (_input_window, GTK_STATE_FLAG_NORMAL, &_normal_bg);
+#else
         gtk_widget_modify_bg (_input_window, GTK_STATE_NORMAL, &_normal_bg);
-        gtk_window_set_policy (GTK_WINDOW (_input_window), TRUE, TRUE, FALSE);
+#endif
         gtk_window_set_resizable (GTK_WINDOW (_input_window), FALSE);
         gtk_widget_add_events (_input_window,GDK_BUTTON_PRESS_MASK);
         gtk_widget_add_events (_input_window,GDK_BUTTON_RELEASE_MASK);
@@ -714,11 +760,23 @@ ui_initialize (void)
         //Create preedit area
         _preedit_area = scim_string_view_new ();
         if (_default_font_desc)
+#if GTK_CHECK_VERSION(3, 0, 0)
+            gtk_widget_override_font (_preedit_area, _default_font_desc);
+#else
             gtk_widget_modify_font (_preedit_area, _default_font_desc);
+#endif
+
+#if GTK_CHECK_VERSION(3, 0, 0)
+        gtk_widget_override_background_color (_preedit_area, GTK_STATE_FLAG_NORMAL, &_normal_bg);
+        gtk_widget_override_background_color (_preedit_area, GTK_STATE_FLAG_ACTIVE, &_active_bg);
+        gtk_widget_override_color (_preedit_area, GTK_STATE_FLAG_NORMAL, &_normal_text);
+        gtk_widget_override_color (_preedit_area, GTK_STATE_FLAG_ACTIVE, &_active_text);
+#else
         gtk_widget_modify_base (_preedit_area, GTK_STATE_NORMAL, &_normal_bg);
         gtk_widget_modify_base (_preedit_area, GTK_STATE_ACTIVE, &_active_bg);
         gtk_widget_modify_text (_preedit_area, GTK_STATE_NORMAL, &_normal_text);
         gtk_widget_modify_text (_preedit_area, GTK_STATE_ACTIVE, &_active_text);
+#endif
         scim_string_view_set_width_chars (SCIM_STRING_VIEW (_preedit_area), 24);
         scim_string_view_set_forward_event (SCIM_STRING_VIEW (_preedit_area), TRUE);
         scim_string_view_set_auto_resize (SCIM_STRING_VIEW (_preedit_area), TRUE);
@@ -731,11 +789,23 @@ ui_initialize (void)
         //Create aux area
         _aux_area = scim_string_view_new ();
         if (_default_font_desc)
+#if GTK_CHECK_VERSION(3, 0, 0)
+            gtk_widget_override_font (_aux_area, _default_font_desc);
+#else
             gtk_widget_modify_font (_aux_area, _default_font_desc);
+#endif
+
+#if GTK_CHECK_VERSION(3, 0, 0)
+        gtk_widget_override_background_color (_aux_area, GTK_STATE_FLAG_NORMAL, &_normal_bg);
+        gtk_widget_override_background_color (_aux_area, GTK_STATE_FLAG_ACTIVE, &_active_bg);
+        gtk_widget_override_color (_aux_area, GTK_STATE_FLAG_NORMAL, &_normal_text);
+        gtk_widget_override_color (_aux_area, GTK_STATE_FLAG_ACTIVE, &_active_text);
+#else
         gtk_widget_modify_base (_aux_area, GTK_STATE_NORMAL, &_normal_bg);
         gtk_widget_modify_base (_aux_area, GTK_STATE_ACTIVE, &_active_bg);
         gtk_widget_modify_text (_aux_area, GTK_STATE_NORMAL, &_normal_text);
         gtk_widget_modify_text (_aux_area, GTK_STATE_ACTIVE, &_active_text);
+#endif
         scim_string_view_set_width_chars (SCIM_STRING_VIEW (_aux_area), 24);
         scim_string_view_set_draw_cursor (SCIM_STRING_VIEW (_aux_area), FALSE);
         scim_string_view_set_forward_event (SCIM_STRING_VIEW (_aux_area), TRUE);
@@ -766,8 +836,11 @@ ui_initialize (void)
             gtk_box_pack_start (GTK_BOX (lookup_table_parent), separator, FALSE, FALSE, 0);
         } else {
             _lookup_table_window = gtk_window_new (GTK_WINDOW_POPUP);
+#if GTK_CHECK_VERSION(3, 0, 0)
+            gtk_widget_override_background_color (_lookup_table_window, GTK_STATE_FLAG_NORMAL, &_normal_bg);
+#else
             gtk_widget_modify_bg (_lookup_table_window, GTK_STATE_NORMAL, &_normal_bg);
-            gtk_window_set_policy (GTK_WINDOW (_lookup_table_window), TRUE, TRUE, FALSE);
+#endif
             gtk_window_set_resizable (GTK_WINDOW (_lookup_table_window), FALSE);
             gtk_widget_add_events (_lookup_table_window,GDK_BUTTON_PRESS_MASK);
             gtk_widget_add_events (_lookup_table_window,GDK_BUTTON_RELEASE_MASK);
@@ -795,11 +868,23 @@ ui_initialize (void)
             for (int i=0; i<SCIM_LOOKUP_TABLE_MAX_PAGESIZE; ++i) {
                 _lookup_table_items [i] = scim_string_view_new ();
                 if (_default_font_desc)
+#if GTK_CHECK_VERSION(3, 0, 0)
+                    gtk_widget_override_font (_lookup_table_items [i], _default_font_desc);
+#else
                     gtk_widget_modify_font (_lookup_table_items [i], _default_font_desc);
+#endif
+
+#if GTK_CHECK_VERSION(3, 0, 0)
+                gtk_widget_override_background_color (_lookup_table_items [i], GTK_STATE_FLAG_NORMAL, &_normal_bg);
+                gtk_widget_override_background_color (_lookup_table_items [i], GTK_STATE_FLAG_ACTIVE, &_active_bg);
+                gtk_widget_override_color (_lookup_table_items [i], GTK_STATE_FLAG_NORMAL, &_normal_text);
+                gtk_widget_override_color (_lookup_table_items [i], GTK_STATE_FLAG_ACTIVE, &_active_text);
+#else
                 gtk_widget_modify_base (_lookup_table_items [i], GTK_STATE_NORMAL, &_normal_bg);
                 gtk_widget_modify_base (_lookup_table_items [i], GTK_STATE_ACTIVE, &_active_bg);
                 gtk_widget_modify_text (_lookup_table_items [i], GTK_STATE_NORMAL, &_normal_text);
                 gtk_widget_modify_text (_lookup_table_items [i], GTK_STATE_ACTIVE, &_active_text);
+#endif
                 scim_string_view_set_width_chars (SCIM_STRING_VIEW (_lookup_table_items [i]), 80);
                 scim_string_view_set_has_frame (SCIM_STRING_VIEW (_lookup_table_items [i]), FALSE);
                 scim_string_view_set_forward_event (SCIM_STRING_VIEW (_lookup_table_items [i]), TRUE);
@@ -842,11 +927,23 @@ ui_initialize (void)
 
             _lookup_table_items [0] = scim_string_view_new ();
             if (_default_font_desc)
+#if GTK_CHECK_VERSION(3, 0, 0)
+                gtk_widget_override_font (_lookup_table_items [0], _default_font_desc);
+#else
                 gtk_widget_modify_font (_lookup_table_items [0], _default_font_desc);
+#endif
+
+#if GTK_CHECK_VERSION(3, 0, 0)
+            gtk_widget_override_background_color (_lookup_table_items [0], GTK_STATE_FLAG_NORMAL, &_normal_bg);
+            gtk_widget_override_background_color (_lookup_table_items [0], GTK_STATE_FLAG_ACTIVE, &_active_bg);
+            gtk_widget_override_color (_lookup_table_items [0], GTK_STATE_FLAG_NORMAL, &_normal_text);
+            gtk_widget_override_color (_lookup_table_items [0], GTK_STATE_FLAG_ACTIVE, &_active_text);
+#else
             gtk_widget_modify_base (_lookup_table_items [0], GTK_STATE_NORMAL, &_normal_bg);
             gtk_widget_modify_base (_lookup_table_items [0], GTK_STATE_ACTIVE, &_active_bg);
             gtk_widget_modify_text (_lookup_table_items [0], GTK_STATE_NORMAL, &_normal_text);
             gtk_widget_modify_text (_lookup_table_items [0], GTK_STATE_ACTIVE, &_active_text);
+#endif
             scim_string_view_set_forward_event (SCIM_STRING_VIEW (_lookup_table_items [0]), TRUE);
             scim_string_view_set_auto_resize (SCIM_STRING_VIEW (_lookup_table_items [0]), TRUE);
             scim_string_view_set_has_frame (SCIM_STRING_VIEW (_lookup_table_items [0]), FALSE);
@@ -883,14 +980,26 @@ ui_initialize (void)
         }
 
         gtk_button_set_relief (GTK_BUTTON (_lookup_table_up_button), GTK_RELIEF_NONE);
+#if GTK_CHECK_VERSION(3, 0, 0)
+        gtk_widget_override_background_color (_lookup_table_up_button, GTK_STATE_FLAG_ACTIVE, &_normal_bg);
+        gtk_widget_override_background_color (_lookup_table_up_button, GTK_STATE_FLAG_INSENSITIVE, &_normal_bg);
+        gtk_widget_override_background_color (_lookup_table_up_button, GTK_STATE_FLAG_PRELIGHT, &_normal_bg);
+#else
         gtk_widget_modify_bg (_lookup_table_up_button, GTK_STATE_ACTIVE, &_normal_bg);
         gtk_widget_modify_bg (_lookup_table_up_button, GTK_STATE_INSENSITIVE, &_normal_bg);
         gtk_widget_modify_bg (_lookup_table_up_button, GTK_STATE_PRELIGHT, &_normal_bg);
+#endif
 
         gtk_button_set_relief (GTK_BUTTON (_lookup_table_down_button), GTK_RELIEF_NONE);
+#if GTK_CHECK_VERSION(3, 0, 0)
+        gtk_widget_override_background_color (_lookup_table_down_button, GTK_STATE_FLAG_ACTIVE, &_normal_bg);
+        gtk_widget_override_background_color (_lookup_table_down_button, GTK_STATE_FLAG_INSENSITIVE, &_normal_bg);
+        gtk_widget_override_background_color (_lookup_table_down_button, GTK_STATE_FLAG_PRELIGHT, &_normal_bg);
+#else
         gtk_widget_modify_bg (_lookup_table_down_button, GTK_STATE_ACTIVE, &_normal_bg);
         gtk_widget_modify_bg (_lookup_table_down_button, GTK_STATE_INSENSITIVE, &_normal_bg);
         gtk_widget_modify_bg (_lookup_table_down_button, GTK_STATE_PRELIGHT, &_normal_bg);
+#endif
 
         if (!_lookup_table_embedded)
             gtk_window_move (GTK_WINDOW (_lookup_table_window), ui_screen_width (), ui_screen_height ());
@@ -906,7 +1015,6 @@ ui_initialize (void)
         GtkWidget *image;
 
         _toolbar_window = gtk_window_new (GTK_WINDOW_POPUP);
-        gtk_window_set_policy (GTK_WINDOW (_toolbar_window), TRUE, TRUE, FALSE);
         gtk_window_set_resizable (GTK_WINDOW (_toolbar_window), FALSE);
         gtk_widget_add_events (_toolbar_window,GDK_BUTTON_PRESS_MASK);
         gtk_widget_add_events (_toolbar_window,GDK_BUTTON_RELEASE_MASK);
@@ -997,19 +1105,33 @@ ui_initialize (void)
                                 GTK_RESPONSE_OK,
                                 NULL);
 
+#if GTK_CHECK_VERSION(3, 0, 0)
+        g_signal_connect_swapped (GTK_WIDGET (_help_dialog), 
+                                  "response", 
+                                  G_CALLBACK (gtk_widget_hide),
+                                  GTK_WIDGET (_help_dialog));
+#else
         g_signal_connect_swapped (GTK_OBJECT (_help_dialog), 
                                   "response", 
                                   G_CALLBACK (gtk_widget_hide),
                                   GTK_OBJECT (_help_dialog));
+#endif
 
+#if GTK_CHECK_VERSION(3, 0, 0)
+        g_signal_connect_swapped (GTK_WIDGET (_help_dialog), 
+                                  "delete_event", 
+                                  G_CALLBACK (gtk_widget_hide_on_delete),
+                                  GTK_WIDGET (_help_dialog));
+#else
         g_signal_connect_swapped (GTK_OBJECT (_help_dialog), 
                                   "delete_event", 
                                   G_CALLBACK (gtk_widget_hide_on_delete),
                                   GTK_OBJECT (_help_dialog));
+#endif
 
         _help_scroll = gtk_scrolled_window_new (NULL, NULL);
         gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (_help_scroll), GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
-        gtk_box_pack_start (GTK_BOX (GTK_DIALOG (_help_dialog)->vbox), _help_scroll, TRUE, TRUE, 0);
+        gtk_box_pack_start (GTK_BOX (gtk_dialog_get_content_area (GTK_DIALOG (_help_dialog))), _help_scroll, TRUE, TRUE, 0);
         gtk_widget_show (_help_scroll);
 
         _help_area = gtk_label_new ("");
@@ -1056,24 +1178,41 @@ ui_initialize (void)
 
     // Init the tooltips
     {
+#if GTK_CHECK_VERSION(2, 12, 0)
+#else
         _tooltips = gtk_tooltips_new ();
 
         gtk_tooltips_set_delay (_tooltips, 1000);
+#endif
 
         if (_window_stick_button)
+#if GTK_CHECK_VERSION(2, 12, 0)
+            gtk_widget_set_tooltip_text (_window_stick_button,
+                                  _("Stick/unstick the input window and the toolbar."));
+#else
             gtk_tooltips_set_tip (_tooltips, _window_stick_button,
                                   _("Stick/unstick the input window and the toolbar."),
                                   NULL);
+#endif
 
         if (_help_button)
+#if GTK_CHECK_VERSION(2, 12, 0)
+            gtk_widget_set_tooltip_text (_help_button,
+                                  _("Show a brief help about SCIM and the current input method."));
+#else
             gtk_tooltips_set_tip (_tooltips, _help_button,
                                   _("Show a brief help about SCIM and the current input method."),
-                                  NULL);
+#endif
 
         if (_menu_button)
+#if GTK_CHECK_VERSION(2, 12, 0)
+            gtk_widget_set_tooltip_text (_menu_button,
+                                  _("Show command menu."));
+#else
             gtk_tooltips_set_tip (_tooltips, _menu_button,
                                   _("Show command menu."),
                                   NULL);
+#endif
     }
 
 #ifdef GDK_WINDOWING_X11
@@ -1429,7 +1568,11 @@ ui_switch_screen (GdkScreen *screen)
 // static void
 // ui_tray_icon_realize_cb (GtkWidget *widget)
 // {
+// #if GTK_CHECK_VERSION(2, 18, 0)
+//     if (!gtk_widget_get_has_window (widget) || gtk_widget_get_app_paintable (widget))
+// #else
 //     if (GTK_WIDGET_NO_WINDOW (widget) || GTK_WIDGET_APP_PAINTABLE (widget))
+// #endif
 //         return;
 // 
 //     gtk_widget_set_app_paintable (widget, TRUE);
@@ -1515,7 +1658,11 @@ ui_create_label (const String   &name,
     gint width, height;
 
     if (_default_font_desc)
+#if GTK_CHECK_VERSION(3, 0, 0)
+        gtk_widget_override_font (label, _default_font_desc);
+#else
         gtk_widget_modify_font (label, _default_font_desc);
+#endif
 
     gtk_icon_size_lookup (GTK_ICON_SIZE_MENU, &width, &height);
 
@@ -1584,7 +1731,7 @@ ui_create_icon (const String  &iconfile,
         GtkWidget *icon = gtk_image_new_from_pixbuf (pixbuf);
         gtk_widget_show (icon);
 
-        gdk_pixbuf_unref (pixbuf);
+        g_object_unref (pixbuf);
 
         return icon;
     }
@@ -1700,7 +1847,11 @@ ui_create_factory_menu_entry (const PanelFactoryInfo &info,
     gtk_menu_shell_append (GTK_MENU_SHELL (menu), menu_item);
 
     if (tooltip != "")
+#if GTK_CHECK_VERSION(2, 12, 0)
+        gtk_widget_set_tooltip_text (menu_item, tooltip.c_str ());
+#else
         gtk_tooltips_set_tip (_tooltips, menu_item, tooltip.c_str (), NULL);
+#endif
 
     return menu_item;
 }
@@ -1721,7 +1872,11 @@ ui_help_button_click_cb (GtkButton *button,
 {
     SCIM_DEBUG_MAIN (3) << "  ui_help_button_click_cb...\n";
 
+#if GTK_CHECK_VERSION(2, 18, 0)
+    if (gtk_widget_get_visible (_help_dialog)) {
+#else
     if (GTK_WIDGET_VISIBLE (_help_dialog)) {
+#endif
         gtk_widget_hide (_help_dialog);
     } else {
         action_request_help ();
@@ -1908,9 +2063,25 @@ ui_input_window_click_cb (GtkWidget *window,
         cursor = gdk_cursor_new (GDK_TOP_LEFT_ARROW);
     
         // Grab the cursor to prevent losing events.
+#if GTK_CHECK_VERSION(3, 0, 0)
+        GdkDisplay    *display;
+        GdkDevice     *pointer;
+        GdkDeviceManager *device_manager;
+        display = gdk_window_get_display (gtk_widget_get_window (window));
+        device_manager = gdk_display_get_device_manager (display);
+        pointer = gdk_device_manager_get_client_pointer (device_manager);
+
+        /* FIXME Not sure if report to GDK_OWNERSHIP_WINDOW
+           or GDK_OWNERSHIP_APPLICATION */
+        gdk_device_grab (pointer, gtk_widget_get_window (window),
+                         GDK_OWNERSHIP_WINDOW, TRUE,
+                         GdkEventMask (GDK_BUTTON_RELEASE_MASK | GDK_POINTER_MOTION_MASK),
+                         cursor, event->time);
+#else
         gdk_pointer_grab (window->window, TRUE,
                           (GdkEventMask) (GDK_BUTTON_RELEASE_MASK | GDK_POINTER_MOTION_MASK),
                           NULL, cursor, event->time);
+#endif
         gdk_cursor_unref (cursor);
         return TRUE;
     } else if (click_type == 1) {
@@ -2014,9 +2185,25 @@ ui_toolbar_window_click_cb (GtkWidget *window,
         cursor = gdk_cursor_new (GDK_TOP_LEFT_ARROW);
 
         // Grab the cursor to prevent losing events.
+#if GTK_CHECK_VERSION(3, 0, 0)
+        GdkDisplay    *display;
+        GdkDevice     *pointer;
+        GdkDeviceManager *device_manager;
+        display = gdk_window_get_display (gtk_widget_get_window (window));
+        device_manager = gdk_display_get_device_manager (display);
+        pointer = gdk_device_manager_get_client_pointer (device_manager);
+
+        /* FIXME Not sure if report to GDK_OWNERSHIP_WINDOW
+           or GDK_OWNERSHIP_APPLICATION */
+        gdk_device_grab (pointer, gtk_widget_get_window (window),
+                         GDK_OWNERSHIP_WINDOW, TRUE,
+                         GdkEventMask (GDK_BUTTON_RELEASE_MASK | GDK_POINTER_MOTION_MASK),
+                         cursor, event->time);
+#else
         gdk_pointer_grab (window->window, TRUE,
                           (GdkEventMask) (GDK_BUTTON_RELEASE_MASK | GDK_POINTER_MOTION_MASK),
                           NULL, cursor, event->time);
+#endif
         gdk_cursor_unref (cursor);
         return TRUE;
     } else if (click_type == 1 && event->button <= 1) {
@@ -2100,9 +2287,25 @@ ui_lookup_table_window_click_cb (GtkWidget *window,
         cursor = gdk_cursor_new (GDK_TOP_LEFT_ARROW);
     
         // Grab the cursor to prevent losing events.
+#if GTK_CHECK_VERSION(3, 0, 0)
+        GdkDisplay    *display;
+        GdkDevice     *pointer;
+        GdkDeviceManager *device_manager;
+        display = gdk_window_get_display (gtk_widget_get_window (window));
+        device_manager = gdk_display_get_device_manager (display);
+        pointer = gdk_device_manager_get_client_pointer (device_manager);
+
+        /* FIXME Not sure if report to GDK_OWNERSHIP_WINDOW
+           or GDK_OWNERSHIP_APPLICATION */
+        gdk_device_grab (pointer, gtk_widget_get_window (window),
+                         GDK_OWNERSHIP_WINDOW, TRUE,
+                         GdkEventMask (GDK_BUTTON_RELEASE_MASK | GDK_POINTER_MOTION_MASK),
+                         cursor, event->time);
+#else
         gdk_pointer_grab (window->window, TRUE,
                           (GdkEventMask) (GDK_BUTTON_RELEASE_MASK | GDK_POINTER_MOTION_MASK),
                           NULL, cursor, event->time);
+#endif
         gdk_cursor_unref (cursor);
         return TRUE;
     } else if (click_type == 1) {
@@ -2172,9 +2375,15 @@ ui_can_hide_input_window (void)
 {
     if (!_panel_is_on) return true;
 
+#if GTK_CHECK_VERSION(2, 18, 0)
+    if (gtk_widget_get_visible (_preedit_area) ||
+        gtk_widget_get_visible (_aux_area) ||
+        (_lookup_table_embedded && gtk_widget_get_visible (_lookup_table_window)))
+#else
     if (GTK_WIDGET_VISIBLE (_preedit_area) ||
         GTK_WIDGET_VISIBLE (_aux_area) ||
         (_lookup_table_embedded && GTK_WIDGET_VISIBLE (_lookup_table_window)))
+#endif
         return false;
     return true;
 }
@@ -2256,7 +2465,11 @@ create_pango_attrlist (const String        &mbs,
                     attr->end_index = end_index;
                     pango_attr_list_insert (attrlist, attr);
 
+#if GTK_CHECK_VERSION(3, 0, 0)
+                    attr = pango_attr_background_new (65536*_active_bg.red, 65536*_active_bg.green, 65536*_active_bg.blue);
+#else
                     attr = pango_attr_background_new (_active_bg.red, _active_bg.green, _active_bg.blue);
+#endif
                     attr->start_index = start_index;
                     attr->end_index = end_index;
                     pango_attr_list_insert (attrlist, attr);
@@ -2323,7 +2536,11 @@ static void
 ui_command_menu_help_activate_cb (GtkMenuItem *item,
                                   gpointer     user_data)
 {
+#if GTK_CHECK_VERSION(2, 18, 0)
+    if (gtk_widget_get_visible (_help_dialog)) {
+#else
     if (GTK_WIDGET_VISIBLE (_help_dialog)) {
+#endif
         gtk_widget_hide (_help_dialog);
     } else {
         action_request_help ();
@@ -2465,7 +2682,11 @@ action_show_command_menu (void)
         if ((_helper_list [i].option & SCIM_HELPER_STAND_ALONE) != 0 &&
             (_helper_list [i].option & SCIM_HELPER_AUTO_START) == 0) {
             menu_item = gtk_image_menu_item_new_with_label (_helper_list [i].name.c_str ());
+#if GTK_CHECK_VERSION(2, 12, 0)
+            gtk_widget_set_tooltip_text (menu_item, _helper_list [i].description.c_str ());
+#else
             gtk_tooltips_set_tip (_tooltips, menu_item, _helper_list [i].description.c_str (), NULL);
+#endif
             icon = ui_create_icon (_helper_list [i].icon, NULL, width, height, false);
 
             if (icon)
@@ -2777,7 +2998,11 @@ slot_update_factory_info (const PanelFactoryInfo &info)
         } else {
             newlabel = gtk_label_new (info.name.c_str ());
             if (_default_font_desc)
+#if GTK_CHECK_VERSION(3, 0, 0)
+                gtk_widget_override_font (newlabel, _default_font_desc);
+#else
                 gtk_widget_modify_font (newlabel, _default_font_desc);
+#endif
             gtk_widget_show (newlabel);
         }
 
@@ -2788,11 +3013,19 @@ slot_update_factory_info (const PanelFactoryInfo &info)
             gtk_container_add (GTK_CONTAINER (_factory_button), newlabel);
         }
 
+#if GTK_CHECK_VERSION(2, 18, 0)
+        if (!gtk_widget_get_visible (_factory_button) && !_toolbar_hidden)
+#else
         if (!GTK_WIDGET_VISIBLE (_factory_button) && !_toolbar_hidden)
+#endif
             gtk_widget_show (_factory_button);
 
+#if GTK_CHECK_VERSION(2, 12, 0)
+        gtk_widget_set_tooltip_text (_factory_button, info.name.c_str ());
+#else
         if (_tooltips)
             gtk_tooltips_set_tip (_tooltips, _factory_button, info.name.c_str (), NULL);
+#endif
 
         ui_settle_toolbar_window ();
     }
@@ -2808,8 +3041,7 @@ slot_update_factory_info (const PanelFactoryInfo &info)
 
     //     gtk_container_add (GTK_CONTAINER (_tray_icon_factory_button), icon);
 
-    //     if (_tooltips)
-    //         gtk_tooltips_set_tip (_tooltips, _tray_icon_factory_button, info.name.c_str (), NULL);
+    //     gtk_widget_set_tooltip_text (_tray_icon_factory_button, info.name.c_str ());
     // }
     if (_tray_icon) {
         gtk_status_icon_set_from_file (_tray_icon, info.icon.c_str());
@@ -2964,7 +3196,11 @@ slot_show_preedit_string (void)
 {
     gtk_widget_show (_preedit_area);
 
+#if GTK_CHECK_VERSION(2, 18, 0)
+    if (_panel_is_on && !gtk_widget_get_visible (_input_window))
+#else
     if (_panel_is_on && !GTK_WIDGET_VISIBLE (_input_window))
+#endif
         gtk_widget_show (_input_window);
 
     ui_settle_input_window (true, true);
@@ -2976,7 +3212,11 @@ slot_show_aux_string (void)
 {
     gtk_widget_show (_aux_area);
 
-    if (_panel_is_on && !GTK_WIDGET_VISIBLE (_input_window))
+#if GTK_CHECK_VERSION(2, 18, 0)
+    if (_panel_is_on && !gtk_widget_get_visible (_input_window))
+#else
+    if (_panel_is_on && !gtk_widget_get_visible (_input_window))
+#endif
         gtk_widget_show (_input_window);
 
     ui_settle_input_window (true, true);
@@ -2988,7 +3228,11 @@ slot_show_lookup_table (void)
 {
     gtk_widget_show (_lookup_table_window);
 
+#if GTK_CHECK_VERSION(2, 18, 0)
+    if (_panel_is_on && _lookup_table_embedded && !gtk_widget_get_visible (_input_window)) {
+#else
     if (_panel_is_on && _lookup_table_embedded && !GTK_WIDGET_VISIBLE (_input_window)) {
+#endif
         gtk_widget_show (_input_window);
         ui_settle_input_window (true, true);
     }
@@ -3310,8 +3554,13 @@ create_properties_node (PropertyRepository           &repository,
 
     gtk_widget_set_sensitive (node, begin->active ());
 
+#if GTK_CHECK_VERSION(2, 12, 0)
+    if (begin->get_tip ().length ())
+        gtk_widget_set_tooltip_text (node, begin->get_tip ().c_str ());
+#else
     if (_tooltips && begin->get_tip ().length ())
         gtk_tooltips_set_tip (_tooltips, node, begin->get_tip ().c_str (), NULL);
+#endif
 
     g_object_set_data_full (G_OBJECT (node), "property_key", g_strdup (begin->get_key ().c_str ()), g_free);
 
@@ -3564,8 +3813,13 @@ update_property (PropertyRepository &repository,
 
             gtk_widget_set_sensitive (it->widget, property.active ());
 
+#if GTK_CHECK_VERSION(2, 12, 0)
+            if (property.get_tip ().length ())
+                gtk_widget_set_tooltip_text (it->widget, property.get_tip ().c_str ());
+#else
             if (_tooltips && property.get_tip ().length ())
                 gtk_tooltips_set_tip (_tooltips, it->widget, property.get_tip ().c_str (), NULL);
+#endif
 
             it->property = property;
             break;
