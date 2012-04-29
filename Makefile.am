@@ -24,16 +24,16 @@ AUX_DIST                = $(ac_aux_dir)/config.guess \
 			$(ac_aux_dir)/ltmain.sh \
 			$(ac_aux_dir)/missing
 
-EXTRA_DIST		= config.rpath  THANKS \
+EXTRA_DIST		= config.rpath THANKS \
 			  mkinstalldirs \
 			  bootstrap \
-	      		  scim.spec \
+			  scim.spec \
 			  intltool-extract.in \
 			  intltool-merge.in \
 			  intltool-update.in
 
 AUTOMAKE_OPTIONS 	= gnu
-SUBDIRS 		= m4 libltdl intl src utils modules configs docs po extras data tests
+SUBDIRS 		= src utils modules configs po extras data docs tests
 
 MAINTAINERCLEANFILES 	= Makefile.in \
 			  aclocal.m4 \
@@ -43,7 +43,7 @@ MAINTAINERCLEANFILES 	= Makefile.in \
 
 DISTCLEANFILES		= scim.pc scim-gtkutils.pc intltool-extract intltool-merge intltool-update
 
-CLEANFILES		= *.bak 
+CLEANFILES		= *.bak *.tar.*
 
 ACLOCAL			= aclocal -I $(ac_aux_dir)
 
@@ -63,7 +63,10 @@ pkgconfig_DATA          = scim.pc \
 
 ACLOCAL_AMFLAGS = -I m4
 
-.PHONY: update-ChangeLog
+.PHONY: update-ChangeLog docs
 
 update-ChangeLog:
 	/bin/sh $(top_srcdir)/svn2cl.sh --authors=$(top_srcdir)/developers -f $(top_srcdir)/ChangeLog
+
+docs:
+	(cd $(top_srcdir)/docs ; make html ; cd - ; mv -iv docs/*.tar.* $(top_srcdir)/)

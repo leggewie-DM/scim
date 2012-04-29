@@ -37,41 +37,28 @@ host_triplet = @host@
 subdir = .
 DIST_COMMON = README $(am__configure_deps) $(srcdir)/Makefile.am \
 	$(srcdir)/Makefile.in $(srcdir)/config.h.in \
-	$(srcdir)/intltool-extract.in $(srcdir)/intltool-merge.in \
-	$(srcdir)/intltool-update.in $(srcdir)/scim-gtkutils.pc.in \
-	$(srcdir)/scim-x11utils.pc.in $(srcdir)/scim.pc.in \
-	$(srcdir)/scim.spec.in $(top_srcdir)/configure \
-	$(top_srcdir)/intl/Makefile.in ABOUT-NLS AUTHORS COPYING \
-	ChangeLog INSTALL NEWS THANKS TODO config.guess config.rpath \
-	config.sub depcomp install-sh ltmain.sh missing mkinstalldirs
+	$(srcdir)/scim-gtkutils.pc.in $(srcdir)/scim-x11utils.pc.in \
+	$(srcdir)/scim.pc.in $(srcdir)/scim.spec.in \
+	$(top_srcdir)/configure ABOUT-NLS AUTHORS COPYING ChangeLog \
+	INSTALL NEWS THANKS TODO config.guess config.rpath config.sub \
+	depcomp install-sh ltmain.sh missing mkinstalldirs
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/argz.m4 \
-	$(top_srcdir)/m4/codeset.m4 $(top_srcdir)/m4/gettext.m4 \
-	$(top_srcdir)/m4/glibc21.m4 $(top_srcdir)/m4/iconv.m4 \
-	$(top_srcdir)/m4/intdiv0.m4 $(top_srcdir)/m4/intltool.m4 \
-	$(top_srcdir)/m4/intmax.m4 $(top_srcdir)/m4/inttypes-pri.m4 \
-	$(top_srcdir)/m4/inttypes.m4 $(top_srcdir)/m4/inttypes_h.m4 \
-	$(top_srcdir)/m4/isc-posix.m4 $(top_srcdir)/m4/lcmessage.m4 \
+	$(top_srcdir)/m4/gettext.m4 $(top_srcdir)/m4/iconv.m4 \
 	$(top_srcdir)/m4/lib-ld.m4 $(top_srcdir)/m4/lib-link.m4 \
 	$(top_srcdir)/m4/lib-prefix.m4 $(top_srcdir)/m4/libtool.m4 \
-	$(top_srcdir)/m4/longdouble.m4 $(top_srcdir)/m4/longlong.m4 \
 	$(top_srcdir)/m4/ltdl.m4 $(top_srcdir)/m4/ltoptions.m4 \
 	$(top_srcdir)/m4/ltsugar.m4 $(top_srcdir)/m4/ltversion.m4 \
 	$(top_srcdir)/m4/lt~obsolete.m4 $(top_srcdir)/m4/nls.m4 \
-	$(top_srcdir)/m4/po.m4 $(top_srcdir)/m4/printf-posix.m4 \
-	$(top_srcdir)/m4/progtest.m4 $(top_srcdir)/m4/signed.m4 \
-	$(top_srcdir)/m4/size_max.m4 $(top_srcdir)/m4/stdint_h.m4 \
-	$(top_srcdir)/m4/uintmax_t.m4 $(top_srcdir)/m4/ulonglong.m4 \
-	$(top_srcdir)/m4/wchar_t.m4 $(top_srcdir)/m4/wint_t.m4 \
-	$(top_srcdir)/m4/xsize.m4 $(top_srcdir)/configure.ac
+	$(top_srcdir)/m4/po.m4 $(top_srcdir)/m4/progtest.m4 \
+	$(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 am__CONFIG_DISTCLEAN_FILES = config.status config.cache config.log \
  configure.lineno config.status.lineno
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = config.h
-CONFIG_CLEAN_FILES = intl/Makefile intltool-extract intltool-merge \
-	intltool-update scim.pc scim-gtkutils.pc scim-x11utils.pc \
+CONFIG_CLEAN_FILES = scim.pc scim-gtkutils.pc scim-x11utils.pc \
 	scim.spec
 CONFIG_CLEAN_VPATH_FILES =
 SOURCES =
@@ -151,7 +138,7 @@ GZIP_ENV = --best
 distuninstallcheck_listfiles = find . -type f -print
 distcleancheck_listfiles = find . -type f -print
 ACLOCAL = aclocal -I $(ac_aux_dir)
-ALLOCA = @ALLOCA@
+ALL_LINGUAS = @ALL_LINGUAS@
 AMTAR = @AMTAR@
 AR = @AR@
 ARGZ_H = @ARGZ_H@
@@ -159,8 +146,6 @@ AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
 AWK = @AWK@
-BUILD_INCLUDED_LIBINTL = @BUILD_INCLUDED_LIBINTL@
-CATOBJEXT = @CATOBJEXT@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
@@ -185,24 +170,24 @@ ECHO_T = @ECHO_T@
 EGREP = @EGREP@
 EXEEXT = @EXEEXT@
 FGREP = @FGREP@
-GENCAT = @GENCAT@
 GETTEXT_PACKAGE = @GETTEXT_PACKAGE@
-GLIBC21 = @GLIBC21@
 GMSGFMT = @GMSGFMT@
 GREP = @GREP@
 GTHREAD2_CFLAGS = @GTHREAD2_CFLAGS@
 GTHREAD2_LIBS = @GTHREAD2_LIBS@
 GTK2_CFLAGS = @GTK2_CFLAGS@
+GTK2_IM_MODULEDIR = @GTK2_IM_MODULEDIR@
 GTK2_LIBS = @GTK2_LIBS@
+GTK3_CFLAGS = @GTK3_CFLAGS@
+GTK3_IM_MODULEDIR = @GTK3_IM_MODULEDIR@
+GTK3_LIBS = @GTK3_LIBS@
 GTK_BINARY_VERSION = @GTK_BINARY_VERSION@
-GTK_IM_MODULEDIR = @GTK_IM_MODULEDIR@
+GTK_CFLAGS = @GTK_CFLAGS@
 GTK_LIBDIR = @GTK_LIBDIR@
+GTK_LIBS = @GTK_LIBS@
+GTK_MAJOR_VERSION = @GTK_MAJOR_VERSION@
 GTK_VERSION = @GTK_VERSION@
-HAVE_ASPRINTF = @HAVE_ASPRINTF@
 HAVE_GRAPHVIZ = @HAVE_GRAPHVIZ@
-HAVE_POSIX_PRINTF = @HAVE_POSIX_PRINTF@
-HAVE_SNPRINTF = @HAVE_SNPRINTF@
-HAVE_WPRINTF = @HAVE_WPRINTF@
 INCLTDL = @INCLTDL@
 INCLUDE_STDINT = @INCLUDE_STDINT@
 INSTALL = @INSTALL@
@@ -210,36 +195,11 @@ INSTALL_DATA = @INSTALL_DATA@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
 INSTALL_SCRIPT = @INSTALL_SCRIPT@
 INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
-INSTOBJEXT = @INSTOBJEXT@
-INTLBISON = @INTLBISON@
 INTLLIBS = @INTLLIBS@
-INTLOBJS = @INTLOBJS@
-INTLTOOL_CAVES_RULE = @INTLTOOL_CAVES_RULE@
-INTLTOOL_DESKTOP_RULE = @INTLTOOL_DESKTOP_RULE@
-INTLTOOL_DIRECTORY_RULE = @INTLTOOL_DIRECTORY_RULE@
 INTLTOOL_EXTRACT = @INTLTOOL_EXTRACT@
-INTLTOOL_ICONV = @INTLTOOL_ICONV@
-INTLTOOL_KBD_RULE = @INTLTOOL_KBD_RULE@
-INTLTOOL_KEYS_RULE = @INTLTOOL_KEYS_RULE@
 INTLTOOL_MERGE = @INTLTOOL_MERGE@
-INTLTOOL_MSGFMT = @INTLTOOL_MSGFMT@
-INTLTOOL_MSGMERGE = @INTLTOOL_MSGMERGE@
-INTLTOOL_OAF_RULE = @INTLTOOL_OAF_RULE@
 INTLTOOL_PERL = @INTLTOOL_PERL@
-INTLTOOL_PONG_RULE = @INTLTOOL_PONG_RULE@
-INTLTOOL_PROP_RULE = @INTLTOOL_PROP_RULE@
-INTLTOOL_SCHEMAS_RULE = @INTLTOOL_SCHEMAS_RULE@
-INTLTOOL_SERVER_RULE = @INTLTOOL_SERVER_RULE@
-INTLTOOL_SHEET_RULE = @INTLTOOL_SHEET_RULE@
-INTLTOOL_SOUNDLIST_RULE = @INTLTOOL_SOUNDLIST_RULE@
-INTLTOOL_THEME_RULE = @INTLTOOL_THEME_RULE@
-INTLTOOL_UI_RULE = @INTLTOOL_UI_RULE@
 INTLTOOL_UPDATE = @INTLTOOL_UPDATE@
-INTLTOOL_XAM_RULE = @INTLTOOL_XAM_RULE@
-INTLTOOL_XGETTEXT = @INTLTOOL_XGETTEXT@
-INTLTOOL_XML_NOMERGE_RULE = @INTLTOOL_XML_NOMERGE_RULE@
-INTLTOOL_XML_RULE = @INTLTOOL_XML_RULE@
-INTL_LIBTOOL_SUFFIX_PREFIX = @INTL_LIBTOOL_SUFFIX_PREFIX@
 LD = @LD@
 LDFLAGS = @LDFLAGS@
 LIBADD_DL = @LIBADD_DL@
@@ -298,6 +258,7 @@ SCIM_BUILD_FILTER_SCTC = @SCIM_BUILD_FILTER_SCTC@
 SCIM_BUILD_FRONTEND_SOCKET = @SCIM_BUILD_FRONTEND_SOCKET@
 SCIM_BUILD_FRONTEND_X11 = @SCIM_BUILD_FRONTEND_X11@
 SCIM_BUILD_GTK2_IMMODULE = @SCIM_BUILD_GTK2_IMMODULE@
+SCIM_BUILD_GTK3_IMMODULE = @SCIM_BUILD_GTK3_IMMODULE@
 SCIM_BUILD_GTK_UTILS = @SCIM_BUILD_GTK_UTILS@
 SCIM_BUILD_IMENGINE_RAWCODE = @SCIM_BUILD_IMENGINE_RAWCODE@
 SCIM_BUILD_IMENGINE_SOCKET = @SCIM_BUILD_IMENGINE_SOCKET@
@@ -327,7 +288,6 @@ STRIP = @STRIP@
 UINT16 = @UINT16@
 UINT32 = @UINT32@
 UINT64 = @UINT64@
-USE_INCLUDED_LIBINTL = @USE_INCLUDED_LIBINTL@
 USE_NLS = @USE_NLS@
 VERSION = @VERSION@
 XGETTEXT = @XGETTEXT@
@@ -404,16 +364,16 @@ AUX_DIST = $(ac_aux_dir)/config.guess \
 			$(ac_aux_dir)/ltmain.sh \
 			$(ac_aux_dir)/missing
 
-EXTRA_DIST = config.rpath  THANKS \
+EXTRA_DIST = config.rpath THANKS \
 			  mkinstalldirs \
 			  bootstrap \
-	      		  scim.spec \
+			  scim.spec \
 			  intltool-extract.in \
 			  intltool-merge.in \
 			  intltool-update.in
 
 AUTOMAKE_OPTIONS = gnu
-SUBDIRS = m4 libltdl intl src utils modules configs docs po extras data tests
+SUBDIRS = src utils modules configs po extras data docs tests
 MAINTAINERCLEANFILES = Makefile.in \
 			  aclocal.m4 \
 			  configure \
@@ -421,7 +381,7 @@ MAINTAINERCLEANFILES = Makefile.in \
 			  $(AUX_DIST)
 
 DISTCLEANFILES = scim.pc scim-gtkutils.pc intltool-extract intltool-merge intltool-update
-CLEANFILES = *.bak 
+CLEANFILES = *.bak *.tar.*
 pkgconfigdir = $(libdir)/pkgconfig
 @SCIM_BUILD_GTK_UTILS_TRUE@GTK_UTILS_PKGCONFIG = scim-gtkutils.pc
 @SCIM_BUILD_X11_UTILS_TRUE@X11_UTILS_PKGCONFIG = scim-x11utils.pc
@@ -485,14 +445,6 @@ $(srcdir)/config.h.in:  $(am__configure_deps)
 
 distclean-hdr:
 	-rm -f config.h stamp-h1
-intl/Makefile: $(top_builddir)/config.status $(top_srcdir)/intl/Makefile.in
-	cd $(top_builddir) && $(SHELL) ./config.status $@
-intltool-extract: $(top_builddir)/config.status $(srcdir)/intltool-extract.in
-	cd $(top_builddir) && $(SHELL) ./config.status $@
-intltool-merge: $(top_builddir)/config.status $(srcdir)/intltool-merge.in
-	cd $(top_builddir) && $(SHELL) ./config.status $@
-intltool-update: $(top_builddir)/config.status $(srcdir)/intltool-update.in
-	cd $(top_builddir) && $(SHELL) ./config.status $@
 scim.pc: $(top_builddir)/config.status $(srcdir)/scim.pc.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
 scim-gtkutils.pc: $(top_builddir)/config.status $(srcdir)/scim-gtkutils.pc.in
@@ -796,7 +748,6 @@ distcheck: dist
 	  && am__cwd=`pwd` \
 	  && $(am__cd) $(distdir)/_build \
 	  && ../configure --srcdir=.. --prefix="$$dc_install_base" \
-	    --with-included-gettext \
 	    $(DISTCHECK_CONFIGURE_FLAGS) \
 	  && $(MAKE) $(AM_MAKEFLAGS) \
 	  && $(MAKE) $(AM_MAKEFLAGS) dvi \
@@ -969,10 +920,13 @@ uninstall-am: uninstall-pkgconfigDATA
 	uninstall uninstall-am uninstall-pkgconfigDATA
 
 
-.PHONY: update-ChangeLog
+.PHONY: update-ChangeLog docs
 
 update-ChangeLog:
 	/bin/sh $(top_srcdir)/svn2cl.sh --authors=$(top_srcdir)/developers -f $(top_srcdir)/ChangeLog
+
+docs:
+	(cd $(top_srcdir)/docs ; make html ; cd - ; mv -iv docs/*.tar.* $(top_srcdir)/)
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
