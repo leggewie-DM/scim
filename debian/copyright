@@ -1,6 +1,7 @@
 This package was debianized by Anthony Fok <foka@debian.org> on Sat,
-05 Apr 2003 23:38:30 +0800.  The current package maintainers is Rolf
-Leggewie <foss@rolf.leggewie.biz>.
+05 Apr 2003 23:38:30 +0800.  The current package maintainer is Rolf
+Leggewie <foss@rolf.leggewie.biz> and Tz-Huan Huang <tzhuan@gmail.com>
+is the co-maintainer.
 
 The upstream release was downloaded from:
     http://prdownloads.sourceforge.net/scim/scim-1.4.9.tar.gz
