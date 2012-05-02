@@ -14,11 +14,6 @@ export DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
 #	./bootstrap
 #	dh_auto_configure
 
-override_dh_auto_clean:
-	# http://bugs.debian.org/427520
-	rm -f docs/manual/zh_CN/user-manual.*
-	dh_auto_clean
-
 override_dh_auto_install:
 	set -e
 	dh_auto_install
