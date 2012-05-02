@@ -5,7 +5,10 @@ DM-Upload-Allowed: yes
 Maintainer: Rolf Leggewie <foss@rolf.leggewie.biz>
 Uploaders: Tz-Huan Huang <tzhuan@gmail.com>
 Standards-Version: 3.9.3
-Build-Depends: dpkg-dev (>= 1.14.6), debhelper (>= 7.0.50~), autotools-dev, pkg-config, x11proto-core-dev, libx11-dev, libpango1.0-dev, libglib2.0-dev, libgtk2.0-dev (>= 2.10.1), dh-autoreconf, libltdl-dev, intltool
+Build-Depends: dpkg-dev (>= 1.14.6), debhelper (>= 7.0.50~),
+ autotools-dev, pkg-config, x11proto-core-dev, libx11-dev,
+ libpango1.0-dev, libglib2.0-dev, libgtk2.0-dev (>= 2.10.1),
+ libltdl-dev, intltool, doxygen
 Homepage: http://www.scim-im.org/
 Vcs-git: git://git.debian.org/git/collab-maint/scim.git
 Vcs-Browser: http://git.debian.org/?p=collab-maint/scim.git
