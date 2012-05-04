@@ -4,15 +4,7 @@ export DH_OPTIONS=-v
 export DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
 
 %:
-	dh --with autotools-dev --with autoreconf $@
-
-# If --with autoreconf is not available, use following while
-# ebian/control: Build-Depends: entry "dh-autoreconf" replaced
-# by "perl, debhelper, autoconf, automake | automaken, libtool".
-#
-#override_dh_auto_configure:
-#	./bootstrap
-#	dh_auto_configure
+	dh --with autotools-dev $@
 
 override_dh_auto_build:
 	$(MAKE) docs
