@@ -1,3 +1,31 @@
+scim (1.4.13-1) unstable; urgency=low
+
+  * new upstream release. Closes: #649872, LP: #933908
+    - input in iceweasel works again. Closes: #642929
+    - drop the 22 (out of 24!) patches that we pushed upstream. Yay!
+    - rebase the remaining two patches
+    - adds gtk3 support. consolidate it with gtk2 support in new package
+      scim-gtk-immodules.  Closes: #641140, Closes: #632094, LP: #931822
+  * debian/control:
+    - update to latest Standards version. no further changes.
+    - drop inactive co-maintainers from Uploaders as requested
+      Li, Ming-Hua and Osamu, thank you for your work over the years
+    - add Tz-Huan as new co-maintainer. Welcome aboard! Closes: #661106
+    - update package dependency information (build and run time)
+  * debian/copyright:
+    - point to version-agnostic download page upstream
+    - drop old and add new co-maintainers
+    - update my copyright
+  * debian/rules:
+    - relax shlibs version requirement on libscim to 1.4
+    - catch errors to comply with policy 4.6. Thx Jwilk!
+  * re-enable straight lucid backporting
+  * drop all packaging code related to obsolete and gone Chinese manual
+  * dynamically generate debian/*.install files for multi-arch
+  * explicitly compile the docs. They are no longer part of upstream tarball.
+
+ -- Rolf Leggewie <foss@rolf.leggewie.biz>  Sun, 27 May 2012 15:36:22 +0800
+
 scim (1.4.9-7) unstable; urgency=medium
 
   * fix FTBFS from introduction of multi-arch. Closes: #640629, LP: #832945.
