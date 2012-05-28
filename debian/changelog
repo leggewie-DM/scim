@@ -1,3 +1,9 @@
+scim (1.4.13-2) unstable; urgency=low
+
+  * libscim8c2a: install files to multi-arch paths. Closes: #674813
+
+ -- Rolf Leggewie <foss@rolf.leggewie.biz>  Mon, 28 May 2012 09:48:44 +0800
+
 scim (1.4.13-1) unstable; urgency=low
 
   * new upstream release. Closes: #649872, LP: #933908
