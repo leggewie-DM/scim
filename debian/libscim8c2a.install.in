@@ -1,6 +1,1 @@
-usr/lib/libscim-1.0.so.8
-usr/lib/libscim-1.0.so.8.*
-usr/lib/libscim-gtkutils-1.0.so.8
-usr/lib/libscim-gtkutils-1.0.so.8.*
-usr/lib/libscim-x11utils-1.0.so.8
-usr/lib/libscim-x11utils-1.0.so.8.*
+usr/lib/libscim-*[!ao] usr/lib/@DEB_HOST_MULTIARCH@/
