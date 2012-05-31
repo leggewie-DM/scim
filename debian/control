@@ -67,6 +67,7 @@ Description: library for SCIM platform
 Package: libscim-dev
 Section: libdevel
 Architecture: any
+Multi-Arch: same
 Pre-Depends: ${misc:Pre-Depends}
 Depends: libscim8c2a (= ${binary:Version}), libx11-dev, libgtk2.0-dev, libpango1.0-dev, ${misc:Depends}
 Description: development library for SCIM platform
