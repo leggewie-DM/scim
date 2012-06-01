@@ -2,6 +2,7 @@
 export DH_VERBOSE=1
 export DH_OPTIONS=-v
 export DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
+export CXXFLAGS += -fpermissive
 
 %:
 	dh --with autotools-dev $@
