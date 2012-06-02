@@ -1,1 +1,1 @@
-usr/lib/libscim-*[!ao] usr/lib/@DEB_HOST_MULTIARCH@/
+usr/lib/@DEB_HOST_MULTIARCH@/libscim-*[!ao]

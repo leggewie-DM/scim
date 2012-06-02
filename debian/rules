@@ -5,7 +5,7 @@ export DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
 export CXXFLAGS += -fpermissive
 
 %:
-	dh --with autotools-dev $@
+	dh $@ --with autotools-dev
 
 override_dh_auto_build:
 	$(MAKE) docs

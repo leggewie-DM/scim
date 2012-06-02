@@ -1,4 +1,4 @@
-usr/lib/libscim-*[ao] usr/lib/@DEB_HOST_MULTIARCH@/
-usr/lib/pkgconfig/scim*.pc usr/lib/@DEB_HOST_MULTIARCH@/pkgconfig/
+usr/lib/@DEB_HOST_MULTIARCH@/libscim-*[ao]
+usr/lib/@DEB_HOST_MULTIARCH@/pkgconfig/scim*.pc
 usr/include/scim-1.0/*.h
 usr/include/scim-1.0/*/*.h
