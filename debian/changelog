@@ -1,3 +1,9 @@
+scim (1.4.13-3) unstable; urgency=low
+
+  * multi-archify libscim-dev (closes: #675224) and scim-modules-socket
+
+ -- Rolf Leggewie <foss@rolf.leggewie.biz>  Sat, 02 Jun 2012 22:13:06 +0800
+
 scim (1.4.13-2) unstable; urgency=low
 
   * libscim8c2a: install files to multi-arch paths. Closes: #674813
