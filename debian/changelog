@@ -1,3 +1,12 @@
+scim (1.4.13-4) unstable; urgency=low
+
+  * debian/rules:
+    - empty dependency_libs field in all *.la files below /usr/lib.
+    - adjust paths in .la files for multi-arch. Closes: #675688
+    - add -fpermissive to CXXFLAGS as a temp workaround. Closes: #674814
+
+ -- Rolf Leggewie <foss@rolf.leggewie.biz>  Sun, 03 Jun 2012 15:11:26 +0800
+
 scim (1.4.13-3) unstable; urgency=low
 
   * multi-archify libscim-dev (closes: #675224) and scim-modules-socket
