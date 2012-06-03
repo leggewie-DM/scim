@@ -15,6 +15,8 @@ override_dh_auto_install:
 	dh_auto_install
 	# empty the dependency_libs field in .la files (bug 591628)
 	find debian/tmp/usr/lib/ -name *.la -exec sed -i "/dependency_libs/ s/'.*'/''/" {} \;
+	# adjust paths in .la files for multi-arch (bug 675688)
+	find debian/tmp/usr/lib/ -name *.la -exec sed -i -e "/usr\/lib/ s!'/usr/lib'!'/usr/lib/$(DEB_HOST_MULTIARCH)'!" {} \;
 	# move libraries based on gtk_binary_version
 	# continue on errors
 	for i in 2 3; do \
