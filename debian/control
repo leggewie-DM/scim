@@ -69,7 +69,8 @@ Section: libdevel
 Architecture: any
 Multi-Arch: same
 Pre-Depends: ${misc:Pre-Depends}
-Depends: libscim8c2a (= ${binary:Version}), libx11-dev, libgtk2.0-dev, libpango1.0-dev, ${misc:Depends}
+Depends: libscim8c2a (= ${binary:Version}), libx11-dev, libgtk2.0-dev,
+ libgtk-3-dev | libgtk2.0-dev (<< 2.21), libpango1.0-dev, ${misc:Depends}
 Description: development library for SCIM platform
  SCIM (Smart Common Input Method) is an input method (IM) platform.
  .
