@@ -1,3 +1,9 @@
+scim (1.4.13-5) unstable; urgency=low
+
+  * libscim-dev: depend on libgtk-3-dev. Closes: #676790
+
+ -- Rolf Leggewie <foss@rolf.leggewie.biz>  Tue, 12 Jun 2012 10:42:11 +0800
+
 scim (1.4.13-4) unstable; urgency=low
 
   * debian/rules:
