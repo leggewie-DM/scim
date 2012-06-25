@@ -1,5 +1,5 @@
 %define nam             scim
-%define ver             1.4.13
+%define ver             1.4.14
 %define rel             1
 %define build_config_socket	1
 %define build_config_simple	1
