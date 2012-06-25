@@ -105,9 +105,6 @@
 /* Define to 1 if you have the `gettimeofday' function. */
 #undef HAVE_GETTIMEOFDAY
 
-/* Have gtk_draw_insertion_cursor (). */
-#undef HAVE_GTK_DRAW_INSERTION_CURSOR
-
 /* Define to 1 if you have the <hash_map> header file. */
 #undef HAVE_HASH_MAP
 
@@ -263,6 +260,18 @@
 
 /* The binary version of SCIM library. */
 #undef SCIM_BINARY_VERSION
+
+/* The Major version of SCIM library. */
+#undef SCIM_BRIDGE_MAJOR_VERSION
+
+/* The Micro version of SCIM library. */
+#undef SCIM_BRIDGE_MICRO_VERSION
+
+/* The Minor version of SCIM library. */
+#undef SCIM_BRIDGE_MINOR_VERSION
+
+/* The release version of SCIM library. */
+#undef SCIM_BRIDGE_VERSION
 
 /* The Major version of SCIM library. */
 #undef SCIM_MAJOR_VERSION

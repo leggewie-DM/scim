@@ -170,7 +170,7 @@ static void       ui_get_workarea                      (int            &x,
 static gboolean   ui_create_tray_icon_when_idle        (gpointer        data);
 #endif
 
-#if GDK_MULTIHEAD_SAFE
+#if GTK_CHECK_VERSION(2, 2, 0)
 static void       ui_switch_screen                     (GdkScreen      *screen);
 #endif
 
@@ -381,7 +381,7 @@ static gboolean   check_exit_timeout_cb                (gpointer data);
 /////////////////////////////////////////////////////////////////////////////
 // Declaration of internal variables.
 /////////////////////////////////////////////////////////////////////////////
-#if GDK_MULTIHEAD_SAFE
+#if GTK_CHECK_VERSION(2, 2, 0)
 static GdkScreen         *_current_screen              = 0;
 #endif
 
@@ -718,7 +718,7 @@ ui_initialize (void)
     _tooltips = 0;
 #endif
 
-#if GDK_MULTIHEAD_SAFE
+#if GTK_CHECK_VERSION(2, 2, 0)
     // Initialize the Display and Screen.
     _current_screen  = gdk_screen_get_default ();
 #endif
@@ -750,10 +750,18 @@ ui_initialize (void)
         gtk_frame_set_shadow_type (GTK_FRAME (frame), GTK_SHADOW_ETCHED_OUT);
         gtk_container_add (GTK_CONTAINER (_input_window), frame);
 
+#if GTK_CHECK_VERSION(3, 2, 0)
+        hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
+#else
         hbox = gtk_hbox_new (FALSE, 0);
+#endif
         gtk_container_add (GTK_CONTAINER (frame), hbox);
 
+#if GTK_CHECK_VERSION(3, 2, 0)
+        vbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+#else
         vbox = gtk_vbox_new (FALSE, 0);
+#endif
         gtk_box_pack_start (GTK_BOX (hbox), vbox, TRUE, TRUE, 0);
         input_window_vbox = vbox;
 
@@ -829,10 +837,18 @@ ui_initialize (void)
         GtkWidget *separator;
 
         if (_lookup_table_embedded) {
+#if GTK_CHECK_VERSION(3, 2, 0)
+            _lookup_table_window = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+#else
             _lookup_table_window = gtk_vbox_new (FALSE, 0);
+#endif
             gtk_box_pack_start (GTK_BOX (input_window_vbox), _lookup_table_window, TRUE, TRUE, 0);
             lookup_table_parent = _lookup_table_window;
+#if GTK_CHECK_VERSION(3, 2, 0)
+            separator = gtk_separator_new (GTK_ORIENTATION_HORIZONTAL);
+#else
             separator = gtk_hseparator_new ();
+#endif
             gtk_box_pack_start (GTK_BOX (lookup_table_parent), separator, FALSE, FALSE, 0);
         } else {
             _lookup_table_window = gtk_window_new (GTK_WINDOW_POPUP);
@@ -861,7 +877,11 @@ ui_initialize (void)
 
         //Vertical lookup table
         if (_lookup_table_vertical) {
+#if GTK_CHECK_VERSION(3, 2, 0)
+            vbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+#else
             vbox = gtk_vbox_new (FALSE, 0);
+#endif
             gtk_container_add (GTK_CONTAINER (lookup_table_parent), vbox);
 
             //New table items
@@ -897,10 +917,18 @@ ui_initialize (void)
                 gtk_box_pack_start (GTK_BOX (vbox), _lookup_table_items [i], TRUE, TRUE, 0);
             }
 
+#if GTK_CHECK_VERSION(3, 2, 0)
+            separator = gtk_separator_new (GTK_ORIENTATION_HORIZONTAL);
+#else
             separator = gtk_hseparator_new ();
+#endif
             gtk_box_pack_start (GTK_BOX (vbox), separator, FALSE, FALSE, 0);
 
+#if GTK_CHECK_VERSION(3, 2, 0)
+            hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
+#else
             hbox = gtk_hbox_new (FALSE, 0);
+#endif
             gtk_box_pack_start (GTK_BOX (vbox), hbox, TRUE, TRUE, 0);
 
             //New down button
@@ -922,7 +950,11 @@ ui_initialize (void)
                                 image);
 
         } else {
+#if GTK_CHECK_VERSION(3, 2, 0)
+            hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
+#else
             hbox = gtk_hbox_new (FALSE, 0);
+#endif
             gtk_container_add (GTK_CONTAINER (lookup_table_parent), hbox);
 
             _lookup_table_items [0] = scim_string_view_new ();
@@ -954,7 +986,11 @@ ui_initialize (void)
                             0);
             gtk_box_pack_start (GTK_BOX (hbox), _lookup_table_items [0], TRUE, TRUE, 0);
 
+#if GTK_CHECK_VERSION(3, 2, 0)
+            separator = gtk_separator_new (GTK_ORIENTATION_VERTICAL);
+#else
             separator = gtk_vseparator_new ();
+#endif
             gtk_box_pack_start (GTK_BOX (hbox), separator, FALSE, FALSE, 0);
 
             //New left button
@@ -1030,7 +1066,11 @@ ui_initialize (void)
         gtk_frame_set_shadow_type (GTK_FRAME (frame), GTK_SHADOW_ETCHED_OUT);
         gtk_container_add (GTK_CONTAINER (_toolbar_window), frame);
 
+#if GTK_CHECK_VERSION(3, 2, 0)
+        hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
+#else
         hbox = gtk_hbox_new (FALSE, 0);
+#endif
         gtk_container_add (GTK_CONTAINER (frame), hbox);
 
         //New trademark pixmap
@@ -1060,7 +1100,11 @@ ui_initialize (void)
         }
 
         // Put all properties here
+#if GTK_CHECK_VERSION(3, 2, 0)
+        _client_properties_area = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
+#else
         _client_properties_area = gtk_hbox_new (FALSE, 0);
+#endif
         gtk_box_pack_start (GTK_BOX (hbox), _client_properties_area, TRUE, TRUE, 0);
         gtk_widget_show (_client_properties_area);
 
@@ -1219,7 +1263,7 @@ ui_initialize (void)
     // Add an event filter function to observe X root window's properties.
     GdkWindow *root_window = gdk_get_default_root_window ();
     GdkEventMask event_mask;
-#if GDK_MULTIHEAD_SAFE
+#if GTK_CHECK_VERSION(2, 2, 0)
     if (_current_screen)
         root_window = gdk_screen_get_root_window (_current_screen);
 #endif
@@ -1245,7 +1289,11 @@ ui_settle_input_window (bool relative, bool force)
     GtkRequisition ws;
     gint spot_x, spot_y;
 
+#if GTK_CHECK_VERSION(3, 0, 0)
+    gtk_widget_get_preferred_size (_input_window, &ws, NULL);
+#else
     gtk_widget_size_request (_input_window, &ws);
+#endif
 
     if (!relative) {
         spot_x = _spot_location_x; 
@@ -1289,8 +1337,13 @@ ui_settle_lookup_table_window(bool force)
     GtkRequisition iws;
     GtkRequisition ws;
 
+#if GTK_CHECK_VERSION(3, 0, 0)
+    gtk_widget_get_preferred_size (_input_window, &iws, NULL);
+    gtk_widget_get_preferred_size (_lookup_table_window, &ws, NULL);
+#else
     gtk_widget_size_request (_input_window, &iws);
     gtk_widget_size_request (_lookup_table_window, &ws);
+#endif
 
     pos_x = _input_window_x;
     pos_y = _input_window_y + iws.height + 8;
@@ -1332,7 +1385,11 @@ ui_settle_toolbar_window (bool force)
     GtkRequisition ws;
     gint pos_x, pos_y;
 
+#if GTK_CHECK_VERSION(3, 0, 0)
+    gtk_widget_get_preferred_size (_toolbar_window, &ws, NULL);
+#else
     gtk_widget_size_request (_toolbar_window, &ws);
+#endif
 
     pos_x = _config->read (String (SCIM_CONFIG_PANEL_GTK_TOOLBAR_POS_X),
                            workarea_x + workarea_width - ws.width);
@@ -1373,7 +1430,7 @@ ui_settle_toolbar_window (bool force)
 static bool
 ui_get_screen_rect (GdkRectangle &rect)
 {
-#if GDK_MULTIHEAD_SAFE
+#if GTK_CHECK_VERSION(2, 2, 0)
 	GdkWindow * active_window;
     int index;
 
@@ -1395,7 +1452,7 @@ ui_get_screen_rect (GdkRectangle &rect)
 static int
 ui_multi_monitor_width ()
 {
-#if GDK_MULTIHEAD_SAFE
+#if GTK_CHECK_VERSION(2, 2, 0)
 	GdkRectangle rect;
     
     if (_current_screen)
@@ -1414,7 +1471,7 @@ ui_multi_monitor_width ()
 static int
 ui_multi_monitor_height ()
 {
-#if GDK_MULTIHEAD_SAFE
+#if GTK_CHECK_VERSION(2, 2, 0)
 	GdkRectangle rect;
     
     if (_current_screen)
@@ -1433,7 +1490,7 @@ ui_multi_monitor_height ()
 static int
 ui_screen_width (void)
 {
-#if GDK_MULTIHEAD_SAFE
+#if GTK_CHECK_VERSION(2, 2, 0)
     if (_current_screen)
         return ui_multi_monitor_width ();
 #endif
@@ -1443,7 +1500,7 @@ ui_screen_width (void)
 static int
 ui_screen_height (void)
 {
-#if GDK_MULTIHEAD_SAFE
+#if GTK_CHECK_VERSION(2, 2, 0)
     if (_current_screen)
         return ui_multi_monitor_height ();
 #endif
@@ -1460,7 +1517,7 @@ ui_get_workarea (int &x, int &y, int &width, int &height)
     gint format, length, current_desktop = 0;
     guchar *data;
 
-#if GDK_MULTIHEAD_SAFE
+#if GTK_CHECK_VERSION(2, 2, 0)
     if (_current_screen)
         root_window = gdk_screen_get_root_window (_current_screen);
 #endif
@@ -1495,7 +1552,7 @@ ui_get_workarea (int &x, int &y, int &width, int &height)
     }
 }
 
-#if GDK_MULTIHEAD_SAFE
+#if GTK_CHECK_VERSION(2, 2, 0)
 static void
 ui_switch_screen (GdkScreen *screen)
 {
@@ -1652,7 +1709,11 @@ ui_create_label (const String   &name,
                  bool            show_icon_only,
                  bool            force_icon)
 {
+#if GTK_CHECK_VERSION(3, 2, 0)
+    GtkWidget * hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
+#else
     GtkWidget * hbox = gtk_hbox_new (FALSE, 0);
+#endif
     GtkWidget * label = gtk_label_new (name.c_str ());
 
     gint width, height;
@@ -2406,7 +2467,11 @@ ui_show_help (const String &help)
 
     gtk_label_set_text (GTK_LABEL (_help_area), help.c_str ());
 
+#if GTK_CHECK_VERSION(3, 0, 0)
+    gtk_widget_get_preferred_size (_help_area, &size, NULL);
+#else
     gtk_widget_size_request (_help_area, &size);
+#endif
 
     if (size.width > ui_screen_width ()/2) {
         size.width = ui_screen_width ()/2;
@@ -2588,7 +2653,7 @@ ui_property_activate_cb (GtkWidget      *widget,
     GtkWidget *submenu = (GtkWidget *) g_object_get_data (G_OBJECT (widget), "property_submenu");
 
     if (submenu) {
-#if GDK_MULTIHEAD_SAFE
+#if GTK_CHECK_VERSION(2, 2, 0)
         if (_current_screen)
             gtk_menu_set_screen (GTK_MENU (submenu), _current_screen);
 #endif
@@ -2665,7 +2730,7 @@ action_show_command_menu (void)
 
     _command_menu = gtk_menu_new ();
 
-#if GDK_MULTIHEAD_SAFE
+#if GTK_CHECK_VERSION(2, 2, 0)
     if (_current_screen)
         gtk_menu_set_screen (GTK_MENU (_command_menu), _current_screen);
 #endif
@@ -2963,7 +3028,7 @@ slot_turn_off (void)
 static void
 slot_update_screen (int num)
 {
-#if GDK_MULTIHEAD_SAFE
+#if GTK_CHECK_VERSION(2, 2, 0)
     if (gdk_display_get_n_screens (gdk_display_get_default ()) > num) {
 
         GdkScreen *screen = gdk_display_get_screen (gdk_display_get_default (), num);
@@ -3102,7 +3167,7 @@ slot_show_factory_menu (const std::vector <PanelFactoryInfo> &factories)
 
         _factory_menu = gtk_menu_new ();
 
-#if GDK_MULTIHEAD_SAFE
+#if GTK_CHECK_VERSION(2, 2, 0)
     if (_current_screen)
         gtk_menu_set_screen (GTK_MENU (_factory_menu), _current_screen);
 #endif
@@ -3399,7 +3464,11 @@ slot_update_lookup_table (const LookupTable &table)
                 scim_string_view_set_text (SCIM_STRING_VIEW (_lookup_table_items [0]),
                                            mbs.c_str ());
 
+#if GTK_CHECK_VERSION(3, 0, 0)
+                gtk_widget_get_preferred_size (_lookup_table_window, &size, NULL);
+#else
                 gtk_widget_size_request (_lookup_table_window, &size);
+#endif
 
                 if (size.width >= ui_screen_width () / 3 && !table.is_page_size_fixed ()) {
                     item_num = i+1;
@@ -3634,7 +3703,11 @@ create_properties (GtkWidget *container,
 
     if (begin == end) return;
 
+#if GTK_CHECK_VERSION(3, 2, 0)
+    root = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
+#else
     root = gtk_hbox_new (FALSE, 0);
+#endif
 
     it = begin;
     next = begin + 1;
@@ -3698,7 +3771,11 @@ register_frontend_properties (const PropertyList &properties)
         _frontend_property_repository.clear ();
 
         if (properties.size ()) {
+#if GTK_CHECK_VERSION(3, 2, 0)
+            _frontend_properties_area = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
+#else
             _frontend_properties_area = gtk_hbox_new (FALSE, 0);
+#endif
 
             create_properties (_frontend_properties_area,
                                _frontend_property_repository,
@@ -3737,7 +3814,11 @@ register_helper_properties (int client, const PropertyList &properties)
     it->second.holder = 0;
 
     if (properties.size ()) {
+#if GTK_CHECK_VERSION(3, 2, 0)
+        it->second.holder = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
+#else
         it->second.holder = gtk_hbox_new (FALSE, 0);
+#endif
 
         create_properties (it->second.holder,
                            it->second.repository,
@@ -4070,7 +4151,7 @@ int main (int argc, char *argv [])
 
     // get current display.
     {
-#if GDK_MULTIHEAD_SAFE
+#if GTK_CHECK_VERSION(2, 2, 0)
         const char *p = gdk_display_get_name (gdk_display_get_default ());
 #else
         const char *p = getenv ("DISPLAY");

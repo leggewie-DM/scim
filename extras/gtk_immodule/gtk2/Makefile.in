@@ -77,16 +77,17 @@ am__base_list = \
   sed '$$!N;$$!N;$$!N;$$!N;s/\n/ /g'
 am__installdirs = "$(DESTDIR)$(moduledir)"
 LTLIBRARIES = $(module_LTLIBRARIES)
-im_scim_la_DEPENDENCIES = $(top_builddir)/src/libscim@SCIM_EPOCH@.la \
-	$(X11_UTILS)
-am_im_scim_la_OBJECTS = im_scim_la-gtkimcontextscim.lo \
-	im_scim_la-imscim.lo
-im_scim_la_OBJECTS = $(am_im_scim_la_OBJECTS)
-im_scim_la_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) \
-	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(im_scim_la_CXXFLAGS) \
-	$(CXXFLAGS) $(im_scim_la_LDFLAGS) $(LDFLAGS) -o $@
-@SCIM_BUILD_GTK2_IMMODULE_TRUE@am_im_scim_la_rpath = -rpath \
-@SCIM_BUILD_GTK2_IMMODULE_TRUE@	$(moduledir)
+im_scim_orig_la_DEPENDENCIES =  \
+	$(top_builddir)/src/libscim@SCIM_EPOCH@.la $(X11_UTILS)
+am_im_scim_orig_la_OBJECTS = im_scim_orig_la-gtkimcontextscim.lo \
+	im_scim_orig_la-imscim.lo
+im_scim_orig_la_OBJECTS = $(am_im_scim_orig_la_OBJECTS)
+im_scim_orig_la_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CXXLD) \
+	$(im_scim_orig_la_CXXFLAGS) $(CXXFLAGS) \
+	$(im_scim_orig_la_LDFLAGS) $(LDFLAGS) -o $@
+@SCIM_BUILD_ORIG_GTK2_IMMODULE_TRUE@am_im_scim_orig_la_rpath = -rpath \
+@SCIM_BUILD_ORIG_GTK2_IMMODULE_TRUE@	$(moduledir)
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -100,8 +101,8 @@ CXXLD = $(CXX)
 CXXLINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
-SOURCES = $(im_scim_la_SOURCES)
-DIST_SOURCES = $(im_scim_la_SOURCES)
+SOURCES = $(im_scim_orig_la_SOURCES)
+DIST_SOURCES = $(im_scim_orig_la_SOURCES)
 HEADERS = $(noinst_HEADERS)
 ETAGS = etags
 CTAGS = ctags
@@ -118,6 +119,13 @@ AWK = @AWK@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
+CLUTTER_BINARY_VERSION = @CLUTTER_BINARY_VERSION@
+CLUTTER_CFLAGS = @CLUTTER_CFLAGS@
+CLUTTER_IMCONTEXT_LIBDIR = @CLUTTER_IMCONTEXT_LIBDIR@
+CLUTTER_IM_MODULEDIR = @CLUTTER_IM_MODULEDIR@
+CLUTTER_LIBDIR = @CLUTTER_LIBDIR@
+CLUTTER_LIBS = @CLUTTER_LIBS@
+CLUTTER_VERSION = @CLUTTER_VERSION@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
 CXX = @CXX@
@@ -218,11 +226,29 @@ PKG_CONFIG = @PKG_CONFIG@
 PKG_CONFIG_LIBDIR = @PKG_CONFIG_LIBDIR@
 PKG_CONFIG_PATH = @PKG_CONFIG_PATH@
 POSUB = @POSUB@
+QT3_CFLAGS = @QT3_CFLAGS@
+QT3_IM_MODULEDIR = @QT3_IM_MODULEDIR@
+QT3_LIBDIR = @QT3_LIBDIR@
+QT3_LIBS = @QT3_LIBS@
+QT3_MOC = @QT3_MOC@
+QT3_PREFIX = @QT3_PREFIX@
+QT4_CFLAGS = @QT4_CFLAGS@
+QT4_IM_MODULEDIR = @QT4_IM_MODULEDIR@
+QT4_LIBDIR = @QT4_LIBDIR@
+QT4_LIBS = @QT4_LIBS@
+QT4_MOC = @QT4_MOC@
+QT4_PREFIX = @QT4_PREFIX@
 RANLIB = @RANLIB@
 SCIM_AGE = @SCIM_AGE@
 SCIM_BINARY_VERSION = @SCIM_BINARY_VERSION@
+SCIM_BRIDGE_MAJOR_VERSION = @SCIM_BRIDGE_MAJOR_VERSION@
+SCIM_BRIDGE_MICRO_VERSION = @SCIM_BRIDGE_MICRO_VERSION@
+SCIM_BRIDGE_MINOR_VERSION = @SCIM_BRIDGE_MINOR_VERSION@
+SCIM_BRIDGE_VERSION = @SCIM_BRIDGE_VERSION@
+SCIM_BUILD_CLUTTER_IMMODULE = @SCIM_BUILD_CLUTTER_IMMODULE@
 SCIM_BUILD_CONFIG_SIMPLE = @SCIM_BUILD_CONFIG_SIMPLE@
 SCIM_BUILD_CONFIG_SOCKET = @SCIM_BUILD_CONFIG_SOCKET@
+SCIM_BUILD_DOCUMENTS = @SCIM_BUILD_DOCUMENTS@
 SCIM_BUILD_FILTER_SCTC = @SCIM_BUILD_FILTER_SCTC@
 SCIM_BUILD_FRONTEND_SOCKET = @SCIM_BUILD_FRONTEND_SOCKET@
 SCIM_BUILD_FRONTEND_X11 = @SCIM_BUILD_FRONTEND_X11@
@@ -232,7 +258,13 @@ SCIM_BUILD_GTK_UTILS = @SCIM_BUILD_GTK_UTILS@
 SCIM_BUILD_IMENGINE_RAWCODE = @SCIM_BUILD_IMENGINE_RAWCODE@
 SCIM_BUILD_IMENGINE_SOCKET = @SCIM_BUILD_IMENGINE_SOCKET@
 SCIM_BUILD_IMENGINE_TABLE = @SCIM_BUILD_IMENGINE_TABLE@
+SCIM_BUILD_IMMODULE = @SCIM_BUILD_IMMODULE@
+SCIM_BUILD_IM_AGENT = @SCIM_BUILD_IM_AGENT@
+SCIM_BUILD_ORIG_GTK2_IMMODULE = @SCIM_BUILD_ORIG_GTK2_IMMODULE@
+SCIM_BUILD_ORIG_GTK3_IMMODULE = @SCIM_BUILD_ORIG_GTK3_IMMODULE@
 SCIM_BUILD_PANEL_GTK = @SCIM_BUILD_PANEL_GTK@
+SCIM_BUILD_QT3_IMMODULE = @SCIM_BUILD_QT3_IMMODULE@
+SCIM_BUILD_QT4_IMMODULE = @SCIM_BUILD_QT4_IMMODULE@
 SCIM_BUILD_SCIM_SETUP = @SCIM_BUILD_SCIM_SETUP@
 SCIM_BUILD_TESTS = @SCIM_BUILD_TESTS@
 SCIM_BUILD_X11_UTILS = @SCIM_BUILD_X11_UTILS@
@@ -240,12 +272,15 @@ SCIM_CURRENT = @SCIM_CURRENT@
 SCIM_DATADIR = @SCIM_DATADIR@
 SCIM_EPOCH = @SCIM_EPOCH@
 SCIM_ICONDIR = @SCIM_ICONDIR@
+SCIM_LIBDIR = @SCIM_LIBDIR@
 SCIM_LIBEXECDIR = @SCIM_LIBEXECDIR@
 SCIM_LOCALEDIR = @SCIM_LOCALEDIR@
+SCIM_LTDLADVISE = @SCIM_LTDLADVISE@
 SCIM_MAJOR_VERSION = @SCIM_MAJOR_VERSION@
 SCIM_MICRO_VERSION = @SCIM_MICRO_VERSION@
 SCIM_MINOR_VERSION = @SCIM_MINOR_VERSION@
 SCIM_MODULE_PATH = @SCIM_MODULE_PATH@
+SCIM_PREFIX = @SCIM_PREFIX@
 SCIM_REVISION = @SCIM_REVISION@
 SCIM_SYSCONFDIR = @SCIM_SYSCONFDIR@
 SCIM_TEMPDIR = @SCIM_TEMPDIR@
@@ -343,22 +378,22 @@ INCLUDES = -I$(top_builddir) \
 			  -DSCIM_TEMPDIR=\"@SCIM_TEMPDIR@\" \
 			  -DSCIM_KEYBOARD_ICON_FILE=\"@SCIM_ICONDIR@/keyboard.png\"
 
-@SCIM_BUILD_GTK2_IMMODULE_TRUE@CONFIG_GTK2_IMMODULE = im-scim.la
+@SCIM_BUILD_ORIG_GTK2_IMMODULE_TRUE@CONFIG_GTK2_IMMODULE = im-scim-orig.la
 @SCIM_BUILD_X11_UTILS_TRUE@X11_UTILS = $(top_builddir)/utils/libscim-x11utils@SCIM_EPOCH@.la
-@SCIM_LD_VERSION_SCRIPT_TRUE@LD_VERSION_SCRIPT_OPTION = "-Wl,--version-script=$(srcdir)/im-scim.version-script"
+@SCIM_LD_VERSION_SCRIPT_TRUE@LD_VERSION_SCRIPT_OPTION = "-Wl,--version-script=$(srcdir)/../im-scim.version-script"
 noinst_HEADERS = ../gtkimcontextscim.h
 moduledir = @GTK2_IM_MODULEDIR@
 module_LTLIBRARIES = $(CONFIG_GTK2_IMMODULE)
-im_scim_la_SOURCES = ../gtkimcontextscim.cpp ../imscim.cpp
-im_scim_la_CXXFLAGS = @GTK2_CFLAGS@
-im_scim_la_CFLAGS = @GTK2_CFLAGS@
-im_scim_la_LDFLAGS = -rpath $(moduledir) \
+im_scim_orig_la_SOURCES = ../gtkimcontextscim.cpp ../imscim.cpp
+im_scim_orig_la_CXXFLAGS = @GTK2_CFLAGS@
+im_scim_orig_la_CFLAGS = @GTK2_CFLAGS@
+im_scim_orig_la_LDFLAGS = -rpath $(moduledir) \
 		     -avoid-version \
 		     -module \
 		     $(LD_VERSION_SCRIPT_OPTION) \
 		     @GTK2_LIBS@
 
-im_scim_la_LIBADD = $(top_builddir)/src/libscim@SCIM_EPOCH@.la $(X11_UTILS)
+im_scim_orig_la_LIBADD = $(top_builddir)/src/libscim@SCIM_EPOCH@.la $(X11_UTILS)
 all: all-am
 
 .SUFFIXES:
@@ -424,8 +459,8 @@ clean-moduleLTLIBRARIES:
 	  echo "rm -f \"$${dir}/so_locations\""; \
 	  rm -f "$${dir}/so_locations"; \
 	done
-im-scim.la: $(im_scim_la_OBJECTS) $(im_scim_la_DEPENDENCIES) 
-	$(im_scim_la_LINK) $(am_im_scim_la_rpath) $(im_scim_la_OBJECTS) $(im_scim_la_LIBADD) $(LIBS)
+im-scim-orig.la: $(im_scim_orig_la_OBJECTS) $(im_scim_orig_la_DEPENDENCIES) 
+	$(im_scim_orig_la_LINK) $(am_im_scim_orig_la_rpath) $(im_scim_orig_la_OBJECTS) $(im_scim_orig_la_LIBADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -433,8 +468,8 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/im_scim_la-gtkimcontextscim.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/im_scim_la-imscim.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/im_scim_orig_la-gtkimcontextscim.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/im_scim_orig_la-imscim.Plo@am__quote@
 
 .cpp.o:
 @am__fastdepCXX_TRUE@	$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -457,19 +492,19 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LTCXXCOMPILE) -c -o $@ $<
 
-im_scim_la-gtkimcontextscim.lo: ../gtkimcontextscim.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(im_scim_la_CXXFLAGS) $(CXXFLAGS) -MT im_scim_la-gtkimcontextscim.lo -MD -MP -MF $(DEPDIR)/im_scim_la-gtkimcontextscim.Tpo -c -o im_scim_la-gtkimcontextscim.lo `test -f '../gtkimcontextscim.cpp' || echo '$(srcdir)/'`../gtkimcontextscim.cpp
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/im_scim_la-gtkimcontextscim.Tpo $(DEPDIR)/im_scim_la-gtkimcontextscim.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../gtkimcontextscim.cpp' object='im_scim_la-gtkimcontextscim.lo' libtool=yes @AMDEPBACKSLASH@
+im_scim_orig_la-gtkimcontextscim.lo: ../gtkimcontextscim.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(im_scim_orig_la_CXXFLAGS) $(CXXFLAGS) -MT im_scim_orig_la-gtkimcontextscim.lo -MD -MP -MF $(DEPDIR)/im_scim_orig_la-gtkimcontextscim.Tpo -c -o im_scim_orig_la-gtkimcontextscim.lo `test -f '../gtkimcontextscim.cpp' || echo '$(srcdir)/'`../gtkimcontextscim.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/im_scim_orig_la-gtkimcontextscim.Tpo $(DEPDIR)/im_scim_orig_la-gtkimcontextscim.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../gtkimcontextscim.cpp' object='im_scim_orig_la-gtkimcontextscim.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(im_scim_la_CXXFLAGS) $(CXXFLAGS) -c -o im_scim_la-gtkimcontextscim.lo `test -f '../gtkimcontextscim.cpp' || echo '$(srcdir)/'`../gtkimcontextscim.cpp
+@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(im_scim_orig_la_CXXFLAGS) $(CXXFLAGS) -c -o im_scim_orig_la-gtkimcontextscim.lo `test -f '../gtkimcontextscim.cpp' || echo '$(srcdir)/'`../gtkimcontextscim.cpp
 
-im_scim_la-imscim.lo: ../imscim.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(im_scim_la_CXXFLAGS) $(CXXFLAGS) -MT im_scim_la-imscim.lo -MD -MP -MF $(DEPDIR)/im_scim_la-imscim.Tpo -c -o im_scim_la-imscim.lo `test -f '../imscim.cpp' || echo '$(srcdir)/'`../imscim.cpp
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/im_scim_la-imscim.Tpo $(DEPDIR)/im_scim_la-imscim.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../imscim.cpp' object='im_scim_la-imscim.lo' libtool=yes @AMDEPBACKSLASH@
+im_scim_orig_la-imscim.lo: ../imscim.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(im_scim_orig_la_CXXFLAGS) $(CXXFLAGS) -MT im_scim_orig_la-imscim.lo -MD -MP -MF $(DEPDIR)/im_scim_orig_la-imscim.Tpo -c -o im_scim_orig_la-imscim.lo `test -f '../imscim.cpp' || echo '$(srcdir)/'`../imscim.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/im_scim_orig_la-imscim.Tpo $(DEPDIR)/im_scim_orig_la-imscim.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../imscim.cpp' object='im_scim_orig_la-imscim.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(im_scim_la_CXXFLAGS) $(CXXFLAGS) -c -o im_scim_la-imscim.lo `test -f '../imscim.cpp' || echo '$(srcdir)/'`../imscim.cpp
+@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(im_scim_orig_la_CXXFLAGS) $(CXXFLAGS) -c -o im_scim_orig_la-imscim.lo `test -f '../imscim.cpp' || echo '$(srcdir)/'`../imscim.cpp
 
 mostlyclean-libtool:
 	-rm -f *.lo
