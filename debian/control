@@ -122,7 +122,7 @@ Description: Qt input method module with SCIM as backend
  SCIM (Smart Common Input Method) is an input method (IM) platform.
  .
  This package is the Qt native input method module for SCIM.  It provides
- a Qt IM module for version 3 and 4 of Qt with SCIM as the input backend.
+ a Qt IM module for version 4 of Qt with SCIM as the input backend.
  This input method module should work within all Qt platforms.
  .
  The Qt IM module communicates with SCIM backend through the IM agent

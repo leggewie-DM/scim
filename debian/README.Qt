@@ -1,7 +1,7 @@
 SCIM supports two different input modes for Qt -- XIM mode and Qt IM mode.
-Qt 3/4 applications can use either XIM mode or Qt 3/4 IM mode for SCIM.
+Qt 4 applications can use either XIM mode or Qt 4 IM mode for SCIM.
 These can be easily set and changed with the im-switch package. The XIM
-mode support is included in scim package. To use Qt 3/4 IM mode, you also
+mode support is included in scim package. To use Qt 4 IM mode, you also
 need to install scim-qt-immodule package (which depends on scim-im-agent).
 
 When using XIM mode in Qt, You need to pay extra attention on two things:
