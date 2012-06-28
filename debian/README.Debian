@@ -44,7 +44,7 @@ scim-m17n, scim-tables-additional, scim-uim
 You need to read the documentation of the particular module package to see if
 your language or favorite input method is supported.
 
-The package scim-gtk-immodule-orig and scim-gtk-immodule provides GTK IM
+The packages scim-gtk-immodule-orig and scim-gtk-immodule provide GTK IM
 mode for SCIM.  For more details, please read README.GTK.
 
 The package scim-qt-immodule provides Qt IM mode for SCIM.  For more details,
@@ -153,7 +153,7 @@ and you can start typing.  An alternative way to start Qt applications
 using SCIM at the Qt IM module is by using QT_IM_MODULE
     $ QT_IM_MODULE="scim"
     $ export QT_IM_MODULE
-    $ qt-program 
+    $ qt-program
 
 --------------
 Autostart SCIM
