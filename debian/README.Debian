@@ -44,19 +44,18 @@ scim-m17n, scim-tables-additional, scim-uim
 You need to read the documentation of the particular module package to see if
 your language or favorite input method is supported.
 
-The package scim-gtk2-immodule provides GTK IM mode for SCIM.  Contrary to the
-popular conception, you do NOT need this package to be able to use SCIM in
-GTK+/GNOME applications.  Those applications can use XIM mode just fine.  For
-more details, please read README.GTK.
+The package scim-gtk-immodule-orig and scim-gtk-immodule provides GTK IM
+mode for SCIM.  For more details, please read README.GTK.
 
-There are two other programs need mentioning: skim and scim-qtimm.  Both are
-for Qt/KDE integration of SCIM.  Qt/KDE applications can also use XIM mode just 
-fine.  Read README.Qt if you want to use SCIM in Qt/KDE applications.
+The package scim-qt-immodule provides Qt IM mode for SCIM.  For more details,
+please read README.Qt.
 
 In summary, you should install package scim and one of the IM module package
-to start.  You may install scim-gtk2-immodule if you use GTK+ applications and
-want to try the GTK IM mode.  You shouldn't need to explicitly install any
-other package as they should be installed as necessary due to dependency.
+to start.  You may install scim-gtk-immodule-orig or scim-gtk-immodule if
+you use GTK+ applications and want to try the GTK IM mode; and you may
+install scim-qt-immodule if you use Qt applications and want to try the
+Qt IM mode. You shouldn't need to explicitly install any other package as
+they should be installed as necessary due to dependency.
 
 -------
 Locales
@@ -91,17 +90,19 @@ Using SCIM
 ----------
 
 After setting up locale, you can try using SCIM to input in your language.
-SCIM can be used in two modes: XIM mode and GTK IM mode.
+SCIM can be used in three modes: XIM mode, GTK IM mode and Qt IM mode.
 
 To use XIM (X Input Method) mode, you need to set the environment variable
-XMODIFIERS and GTK_IM_MODULE before starting your X application (you only need
-to set GTK_IM_MODULE if the X application you want to run also uses GTK+).
-Run the following commands in an X terminal (such as xterm, gnome-terminal or
-konsole):
+XMODIFIERS and GTK_IM_MODULE before starting your X application (you
+only need to set GTK_IM_MODULE/QT_IM_MODULE if the X application you want
+to run also uses GTK+/Qt).  Run the following commands in an X terminal
+(such as xterm, gnome-terminal or konsole):
     $ XMODIFIERS="@im=SCIM"
     $ export XMODIFIERS
     $ GTK_IM_MODULE="xim"
+    $ QT_IM_MODULE="xim"
     $ export GTK_IM_MODULE
+    $ export QT_IM_MODULE
     $ scim -d
 Now you should see some output by SCIM saying it's successfully launched, and
 if your have a system tray, there should be an icon of keyboard image
@@ -109,31 +110,50 @@ appearing there (the image of the icon will change according to the input
 method status).  Then you can start an X program in the same terminal, for
 example
     $ gedit
-will start the gedit text editor.  Press Ctrl-space should activate SCIM and
-you can start using your input method (remember you need to install the module
-package for your input method).  Note you must start the program you want to
-use input method in from the same X terminal.  To enable using SCIM in
-programs launched in any way, see the "Autostart SCIM" section below.
+will start the gedit text editor.  Press Ctrl-space should activate SCIM
+and you can start using your input method (remember you need to install
+the module package for your input method).  Note you must start the program
+you want to use input method in from the same X terminal.  To enable using
+SCIM in programs launched in any way, see the "Autostart SCIM" section below.
 
-GTK+ 2 has its own input method framework, so GTK+/GNOME programs can use SCIM
-in an additional mode, GTK IM mode.  Note again that GTK+/GNOME programs can
-use XIM mode, too, so the scim-gtk2-immodule and GTK IM mode are not essential
-for using input methods in GTK+ applications.  SCIM's GTK IM mode is provided
-as a GTK IM module by the scim-gtk2-immodule package, and SCIM can
-automatically start if you choose this module.  So using GTK IM mode is
-simpler, just start a GTK+/GNOME program, right-click and choose "Input
-Methods -> SCIM Input Method" in the pop-up menu, and SCIM should
-automatically start if it's not started yet.  Now pressing Ctrl-space should
-also activate SCIM and you can start typing.  An alternative way to start
-GTK+ applications using SCIM at the GTK IM module is by using GTK_IM_MODULE
-environment variable, such as:
+GTK+ has its own input method framework, so GTK+/GNOME programs can use
+SCIM in an additional mode, GTK IM mode.  Note again that GTK+/GNOME
+programs can use XIM mode, too, so the scim-gtk-immodule-orig or
+scim-gtk-immodule and GTK IM mode are not essential for using input
+methods in GTK+ applications.  SCIM's GTK IM mode is provided as a GTK
+IM module by the scim-gtk-immodule-orig or scim-gtk-immodule package, and
+SCIM can automatically start if you choose this module.  So using GTK IM
+mode is simpler, just start a GTK+/GNOME program, right-click and choose
+"Input Methods -> SCIM Input Method" in the pop-up menu, and SCIM should
+automatically start if it's not started yet.  Now pressing Ctrl-space
+should also activate SCIM and you can start typing.  An alternative way
+to start GTK+ applications using SCIM at the GTK IM module is by using
+GTK_IM_MODULE environment variable, such as:
+    $ GTK_IM_MODULE="scim-orig"
+    $ export GTK_IM_MODULE
+    $ gedit
+for scim-gtk-immodule-orig, or
     $ GTK_IM_MODULE="scim"
     $ export GTK_IM_MODULE
     $ gedit
-This way SCIM will automatically start when you start the GTK+ program, and
-automatically stop when you quit the program.  This may cause delay for
-program start/quit though, so it's always a good idea to explicitly start SCIM
-by "scim -d" command.
+for scim-gtk-immodule.
+This way SCIM will automatically start when you start the GTK+ program,
+and automatically stop when you quit the program.  This may cause delay
+for program start/quit though, so it's always a good idea to explicitly
+start SCIM by "scim -d" command.
+
+Qt also has its own input method framework, so Qt/KDE programs can use SCIM
+in an additional mode, GTK IM mode.  SCIM's Qt IM mode is provided as a
+Qt IM module by the scim-qt-immodule package, and SCIM can automatically
+start if you choose this module.  So using GTK IM mode is simpler, just
+start a Qt/KDE program, right-click and choose "Input Methods -> SCIM
+Input Method" in the pop-up menu, and SCIM should automatically start if
+it's not started yet.  Now pressing Ctrl-space should also activate SCIM
+and you can start typing.  An alternative way to start Qt applications
+using SCIM at the Qt IM module is by using QT_IM_MODULE
+    $ QT_IM_MODULE="scim"
+    $ export QT_IM_MODULE
+    $ qt-program 
 
 --------------
 Autostart SCIM
@@ -150,10 +170,13 @@ want to start SCIM automatically with GNOME:
     XMODIFIERS="@im=SCIM"
     export XMODIFIERS
     GTK_IM_MODULE="xim"
+    QT_IM_MODULE="xim"
     export GTK_IM_MODULE
+    export QT_IM_MODULE
     scim -d
-Change the en_US.UTF-8 to your preferred locale, and change GTK_IM_MODULE to
-"scim" if you want to use GTK IM mode instead of XIM mode.
+Change the en_US.UTF-8 to your preferred locale, and change
+GTK_IM_MODULE/QT_IM_MODULE to
+"scim" if you want to use GTK/QT IM mode instead of XIM mode.
 
 The hard part is to figure out which configuration file to put these in.  One
 choice is to put it in ~/.xsession, and add your X session command at the end
