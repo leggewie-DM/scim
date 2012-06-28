@@ -90,25 +90,6 @@ Description: development library for SCIM platform
  .
  For more information about SCIM, please see the description of scim package.
 
-Package: scim-gtk-immodule-orig
-Architecture: any
-Multi-Arch: same
-Pre-Depends: ${misc:Pre-Depends}
-Depends: scim, scim-modules-socket (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
-Enhances: scim
-Description: GTK+ input method module with SCIM as backend
- SCIM (Smart Common Input Method) is an input method (IM) platform.
- .
- This package is the original GTK+ native input method module for SCIM.
- It provides a GTK+ IM module for version 2 and 3 of GTK with SCIM as
- the input backend.  This input method module should work within all GTK+
- platforms, including gtk-x11, gtk-linuxfb and gtk-directfb.
- .
- The GTK+ IM module communicates with SCIM backend through the socket IM engine
- module and socket front end module provided by scim-modules-socket package.
- .
- For more information about SCIM, please see the description of scim package.
-
 Package: scim-gtk-immodule
 Architecture: any
 Multi-Arch: same
