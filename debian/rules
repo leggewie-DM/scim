@@ -43,5 +43,3 @@ override_dh_makeshlibs:
 
 override_dh_shlibdeps:
 	dh_shlibdeps -l debian/libscim8c2a/usr/lib -L libscim8c2a
-
-# vim:textwidth=0:
