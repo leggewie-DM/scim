@@ -7,6 +7,13 @@ export CXXFLAGS += -fpermissive
 %:
 	dh $@ --with autotools-dev
 
+override_dh_auto_configure:
+	dh_auto_configure -- \
+	       --libdir=\$${prefix}/lib/$(DEB_HOST_MULTIARCH) \
+	       --enable-orig-gtk2-immodule --enable-orig-gtk3-immodule \
+	       --with-qt3-moc=\$${prefix}/bin/moc-qt3 \
+	       --with-qt4-moc=\$${prefix}/bin/moc-qt4
+
 override_dh_auto_build:
 	$(MAKE) docs
 	dh_auto_build
