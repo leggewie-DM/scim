@@ -3,7 +3,7 @@ Section: utils
 Priority: optional
 DM-Upload-Allowed: yes
 Maintainer: Rolf Leggewie <foss@rolf.leggewie.biz>
-Uploaders: Tz-Huan Huang <tzhuan@gmail.com>
+Uploaders: Tz-Huan Huang <tzhuan@gmail.com>, Toni Mueller <toni@debian.org>
 Standards-Version: 3.9.3
 Build-Depends: dpkg-dev (>= 1.14.6), debhelper (>= 9),
  autotools-dev, pkg-config, x11proto-core-dev, libx11-dev,
