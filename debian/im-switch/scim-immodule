@@ -63,4 +63,4 @@ else
   CLUTTER_IM_MODULE=xim
 fi
 
-DEPENDS="scim,scim-gtk-immodule-orig|scim-gtk-immodule|scim-qt-immodule|scim-clutter-immodule,scim-anthy|scim-canna|scim-chewing|scim-pinyin|scim-hangul|scim-prime|scim-skk|scim-modules-table|scim-tables-additional|scim-m17n|scim-uim|scim-tables-ja|scim-tables-ko|scim-tables-zh"
+DEPENDS="scim,scim-gtk-immodule|scim-qt-immodule|scim-clutter-immodule,scim-anthy|scim-canna|scim-chewing|scim-pinyin|scim-hangul|scim-prime|scim-skk|scim-modules-table|scim-tables-additional|scim-m17n|scim-uim|scim-tables-ja|scim-tables-ko|scim-tables-zh"
