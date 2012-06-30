@@ -1,3 +1,21 @@
+scim (1.4.14-1) unstable; urgency=low
+
+  [ Rolf Leggewie ]
+  * new upstream release 1.4.14
+    - drop 32_scim-1.4.8-fix-dlopen.patch which has landed upstream
+  * bump compat level to 9
+  * debian/control: add Toni Mueller as co-maintainer
+    Welcome aboard!
+
+  [ Tz-Huan Huang ]
+  * start shipping a couple of newly introduced im-module packages
+  * debian/rules:
+    - simplify dh_auto_install override where upstream changes allow this
+    - drop -fpermissive from CXXFLAGS, fixed upstream
+  * debian/README.*: update the documentation
+
+ -- Rolf Leggewie <foss@rolf.leggewie.biz>  Sat, 30 Jun 2012 11:21:42 +0800
+
 scim (1.4.13-5) unstable; urgency=low
 
   * libscim-dev: depend on libgtk-3-dev. Closes: #676790
