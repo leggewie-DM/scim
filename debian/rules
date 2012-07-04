@@ -8,6 +8,7 @@ export DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
 
 override_dh_auto_build:
 	$(MAKE) docs
+	rm -f docs/html/FreeSans.ttf
 	dh_auto_build
 
 override_dh_auto_install:
