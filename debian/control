@@ -192,7 +192,7 @@ Description: development files for SCIM platform
 
 Package: scim-dev-doc
 Section: doc
-Depends: ${misc:Depends}
+Depends: ${misc:Depends}, libjs-jquery
 Architecture: all
 Description: development documentation for SCIM platform
  SCIM (Smart Common Input Method) is an input method (IM) platform.
