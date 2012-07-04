@@ -136,6 +136,7 @@ Description: Qt input method module with SCIM as backend
 
 Package: scim-clutter-immodule
 Architecture: any
+Multi-Arch: same
 Pre-Depends: ${misc:Pre-Depends}
 Depends: scim (= ${binary:Version}), scim-im-agent (= ${binary:Version}),
  ${shlibs:Depends}, ${misc:Depends}
