@@ -19,7 +19,7 @@ Architecture: any
 Multi-Arch: foreign
 Pre-Depends: ${misc:Pre-Depends}
 Depends: ${shlibs:Depends}, ${misc:Depends}
-Recommends: scim-gtk-immodule (= ${binary:Version}), im-config | im-switch, scim-bridge-agent
+Recommends: scim-gtk-immodule, im-config | im-switch, scim-im-agent
 Suggests: scim-uim, scim-pinyin, scim-hangul, scim-chewing, scim-m17n, scim-prime, scim-anthy, scim-skk, scim-canna, scim-tables-additional, scim-tables-ja, scim-tables-ko, scim-tables-zh, scim-thai
 Description: smart common input method platform
  Smart Common Input Method (SCIM) is an input method (IM) platform.  Input
@@ -94,9 +94,10 @@ Package: scim-gtk-immodule
 Architecture: any
 Multi-Arch: same
 Pre-Depends: ${misc:Pre-Depends}
-Depends: scim, scim-im-agent (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
-Provides: scim-gtk2-immodule
-Conflicts: scim-gtk2-immodule
+Depends: scim (= ${binary:Version}), scim-im-agent (= ${binary:Version}),
+ ${shlibs:Depends}, ${misc:Depends}
+Provides: scim-gtk2-immodule, scim-gtk-immodule
+Conflicts: scim-gtk2-immodule, scim-gtk-immodule
 Replaces: scim-gtk2-immodule
 Enhances: scim
 Description: GTK+ input method module with SCIM as backend
@@ -116,7 +117,10 @@ Package: scim-qt-immodule
 Architecture: any
 Multi-Arch: same
 Pre-Depends: ${misc:Pre-Depends}
-Depends: scim, scim-im-agent (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
+Depends: scim (= ${binary:Version}), scim-im-agent (= ${binary:Version}),
+ ${shlibs:Depends}, ${misc:Depends}
+Provides: scim-bridge-client-qt4
+Conflicts: scim-bridge-client-qt, scim-bridge-client-qt4
 Enhances: scim
 Description: Qt input method module with SCIM as backend
  SCIM (Smart Common Input Method) is an input method (IM) platform.
@@ -133,7 +137,8 @@ Description: Qt input method module with SCIM as backend
 Package: scim-clutter-immodule
 Architecture: any
 Pre-Depends: ${misc:Pre-Depends}
-Depends: scim, scim-im-agent (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
+Depends: scim (= ${binary:Version}), scim-im-agent (= ${binary:Version}),
+ ${shlibs:Depends}, ${misc:Depends}
 Enhances: scim
 Description: Clutter input method module with SCIM as backend
  SCIM (Smart Common Input Method) is an input method (IM) platform.
@@ -151,6 +156,8 @@ Package: scim-im-agent
 Architecture: any
 Pre-Depends: ${misc:Pre-Depends}
 Depends: scim-modules-socket (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
+Provides: scim-bridge-agent
+Conflicts: scim-bridge-agent
 Enhances: scim
 Description: IM agent for SCIM platform
  SCIM (Smart Common Input Method) is an input method (IM) platform.
