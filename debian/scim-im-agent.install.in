@@ -1,1 +1,4 @@
 usr/bin/scim-im-agent
+usr/lib/@DEB_HOST_MULTIARCH@/scim-1.0/1.4.0/Config/socket.so
+usr/lib/@DEB_HOST_MULTIARCH@/scim-1.0/1.4.0/FrontEnd/socket.so
+usr/lib/@DEB_HOST_MULTIARCH@/scim-1.0/1.4.0/IMEngine/socket.so

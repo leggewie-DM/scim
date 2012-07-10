@@ -156,9 +156,10 @@ Package: scim-im-agent
 Architecture: any
 Multi-Arch: foreign
 Pre-Depends: ${misc:Pre-Depends}
-Depends: scim-modules-socket (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
-Provides: scim-bridge-agent
-Conflicts: scim-bridge-agent
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Provides: scim-bridge-agent, scim-modules-socket
+Conflicts: scim-bridge-agent, scim-modules-socket
+Replaces: scim-modules-socket
 Enhances: scim
 Description: IM agent for SCIM platform
  SCIM (Smart Common Input Method) is an input method (IM) platform.
@@ -166,23 +167,6 @@ Description: IM agent for SCIM platform
  This package provides the IM agent for SCIM. SCIM provides various IM modules
  for Gtk/Qt/clutter program. The IM modules connumicate with SCIM through the
  IM agent.
- .
- For more information about SCIM, please see the description of scim package.
-
-Package: scim-modules-socket
-Architecture: any
-Multi-Arch: same
-Pre-Depends: ${misc:Pre-Depends}
-Depends: ${shlibs:Depends}, ${misc:Depends}
-Enhances: scim
-Description: socket modules for SCIM platform
- SCIM (Smart Common Input Method) is an input method (IM) platform.
- .
- This package provides the socket modules for SCIM.  SCIM can use a local or
- inet socket as the front end and connect to the configuration and IM engine
- modules.  Then other computers and/or environments can share these input
- methods by connecting to the socket with socket IM engine module and socket
- configure module.
  .
  For more information about SCIM, please see the description of scim package.
 
