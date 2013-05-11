@@ -1,3 +1,17 @@
+scim (1.4.14-3) unstable; urgency=low
+
+  * control:
+    - update info about binary package incompatibilities. Closes: #680988
+    - set scim-clutter-immodule to MA:same
+    - drop inactive co-maintainer
+    - bump to policy 3.9.4
+  * scim-dev-doc:
+    - let libjs-jquery provide jquery.js instead of shipping our own
+    - stop shipping private copy of FreeSans.ttf
+  * copyright: update my copyright to 2013
+
+ -- Rolf Leggewie <foss@rolf.leggewie.biz>  Sat, 11 May 2013 18:25:00 +0800
+
 scim (1.4.14-2) unstable; urgency=low
 
   * release 1.4.14-1x1 to unstable
