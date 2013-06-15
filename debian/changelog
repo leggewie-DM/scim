@@ -1,3 +1,13 @@
+scim (1.4.14-4) unstable; urgency=low
+
+  [ Rolf Leggewie ]
+  * control: drop obsolete DMUA field
+
+  [ Tz-Huan Huang ]
+  * patches: backport upstream fix to one compiler warning
+
+ -- Rolf Leggewie <foss@rolf.leggewie.biz>  Sat, 15 Jun 2013 18:02:36 +0900
+
 scim (1.4.14-3) unstable; urgency=low
 
   * control:
