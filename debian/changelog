@@ -1,3 +1,9 @@
+scim (1.4.14-5) unstable; urgency=low
+
+  * add scim-im-agent man page
+
+ -- Rolf Leggewie <foss@rolf.leggewie.biz>  Sun, 16 Jun 2013 23:55:33 +0900
+
 scim (1.4.14-4) unstable; urgency=low
 
   [ Rolf Leggewie ]
