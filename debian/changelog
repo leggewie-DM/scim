@@ -1,3 +1,14 @@
+scim (1.4.14-6) unstable; urgency=low
+
+  [ William Grant ]
+  * control: build with dh-autoreconf instead of autotools-dev for new libtool
+
+  [ Rolf Leggewie ]
+  * fix spelling mistake in scim-im-agent manpage
+  * control: bump standards version to 3.9.5. no further changes.
+
+ -- Rolf Leggewie <foss@rolf.leggewie.biz>  Sat, 08 Feb 2014 04:06:12 +0100
+
 scim (1.4.14-5) unstable; urgency=low
 
   * add scim-im-agent man page
