@@ -1,3 +1,22 @@
+scim (1.4.15-1) unstable; urgency=medium
+
+  [ Tz-Huan Huang ]
+  * new upstream release 1.4.15
+    - build successfully with clang instead of gcc. Closes: #750115
+    - drop 03_backport_964b2221.patch which has landed upstream
+  * debian/control:
+    - bump to policy 3.9.6
+    - update Homepage
+    - add intltool and autopoint to Build-Depends
+  * debian/rules:
+    - use scim's bootstrap script for dh_autoreconf
+    - make sure that clutter-immodule continues to be built
+
+  [ Rolf Leggewie ]
+  * patches: backport 88fbabed7dc2 to disable subdir-objects.
+
+ -- Rolf Leggewie <foss@rolf.leggewie.biz>  Thu, 23 Oct 2014 04:38:37 +0900
+
 scim (1.4.14-6) unstable; urgency=low
 
   [ William Grant ]
