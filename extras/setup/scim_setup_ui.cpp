@@ -1,6 +1,6 @@
 /*
  * Smart Common Input Method
- * 
+ *
  * Copyright (c) 2002-2005 James Su <suzhe@tsinghua.org.cn>
  *
  *
@@ -38,7 +38,7 @@
 #include "scim_setup_module.h"
 #include "scim_setup_ui.h"
 
-#define LIST_ICON_SIZE 20 
+#define LIST_ICON_SIZE 20
 
 #define SCIM_TRADEMARK_ICON_FILE    (SCIM_ICONDIR "/trademark.png")
 
@@ -232,7 +232,7 @@ SetupUI::create_main_ui ()
     gtk_window_set_modal (GTK_WINDOW (m_main_window), TRUE);
     gtk_window_set_destroy_with_parent (GTK_WINDOW (m_main_window), TRUE);
     gtk_window_set_resizable (GTK_WINDOW (m_main_window), TRUE);
-    
+
     // Set the window icon
     icon = gdk_pixbuf_new_from_file (SCIM_TRADEMARK_ICON_FILE, NULL);
     if (icon) {
@@ -249,14 +249,20 @@ SetupUI::create_main_ui ()
     gtk_container_add (GTK_CONTAINER (m_main_window), vbox1);
 
     // Create paned window.
+#if GTK_CHECK_VERSION(3, 2, 0)
+    hpaned1 = gtk_paned_new (GTK_ORIENTATION_HORIZONTAL);
+#else
     hpaned1 = gtk_hpaned_new ();
+#endif
     gtk_widget_show (hpaned1);
     gtk_box_pack_start (GTK_BOX (vbox1), hpaned1, TRUE, TRUE, 0);
     gtk_container_set_border_width (GTK_CONTAINER (hpaned1), 4);
 
     // Create statusbar.
     m_status_bar = gtk_statusbar_new ();
-#if GTK_CHECK_VERSION(3, 0, 0)
+#if GTK_CHECK_VERSION(3, 14, 0)
+    // resize_grip is removed in gtk+-3.14.0
+#elif GTK_CHECK_VERSION(3, 0, 0)
     gtk_window_set_has_resize_grip (GTK_WINDOW(m_main_window), TRUE);
 #else
     gtk_statusbar_set_has_resize_grip (GTK_STATUSBAR (m_status_bar), TRUE);
@@ -270,7 +276,7 @@ SetupUI::create_main_ui ()
     gtk_paned_pack1 (GTK_PANED (hpaned1), scrolledwindow1, FALSE, FALSE);
     gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolledwindow1),
                                     GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
-    gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (scrolledwindow1), 
+    gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (scrolledwindow1),
                                          GTK_SHADOW_ETCHED_IN);
 
     // Create module list view.
@@ -322,19 +328,35 @@ SetupUI::create_main_ui ()
     gtk_widget_show (hbox1);
     gtk_box_pack_end (GTK_BOX (vbox2), hbox1, FALSE, FALSE, 8);
 
+#if GTK_CHECK_VERSION(3, 14, 0)
+    ok_button = gtk_button_new_from_icon_name ("gtk-ok", GTK_ICON_SIZE_BUTTON);
+#else
     ok_button = gtk_button_new_from_stock ("gtk-ok");
+#endif
     gtk_widget_show (ok_button);
     gtk_box_pack_end (GTK_BOX (hbox1), ok_button, FALSE, FALSE, 4);
 
+#if GTK_CHECK_VERSION(3, 14, 0)
+    exit_button = gtk_button_new_from_icon_name ("gtk-cancel", GTK_ICON_SIZE_BUTTON);
+#else
     exit_button = gtk_button_new_from_stock ("gtk-cancel");
+#endif
     gtk_widget_show (exit_button);
     gtk_box_pack_end (GTK_BOX (hbox1), exit_button, FALSE, FALSE, 4);
 
+#if GTK_CHECK_VERSION(3, 2, 0)
+    vseparator1 = gtk_separator_new (GTK_ORIENTATION_VERTICAL);
+#else
     vseparator1 = gtk_vseparator_new ();
+#endif
     gtk_widget_show (vseparator1);
     gtk_box_pack_end (GTK_BOX (hbox1), vseparator1, FALSE, FALSE, 4);
 
+#if GTK_CHECK_VERSION(3, 14, 0)
+    m_apply_button = gtk_button_new_from_icon_name ("gtk-apply", GTK_ICON_SIZE_BUTTON);
+#else
     m_apply_button = gtk_button_new_from_stock ("gtk-apply");
+#endif
     gtk_widget_show (m_apply_button);
     gtk_box_pack_end (GTK_BOX (hbox1), m_apply_button, FALSE, FALSE, 4);
 #if GTK_CHECK_VERSION(2, 18, 0)
@@ -344,7 +366,11 @@ SetupUI::create_main_ui ()
 #endif
     gtk_widget_set_sensitive (m_apply_button, FALSE);
 
+#if GTK_CHECK_VERSION(3, 14, 0)
+    m_restore_button = gtk_button_new_from_icon_name ("gtk-revert-to-saved", GTK_ICON_SIZE_BUTTON);
+#else
     m_restore_button = gtk_button_new_from_stock ("gtk-revert-to-saved");
+#endif
     gtk_widget_show (m_restore_button);
     gtk_box_pack_end (GTK_BOX (hbox1), m_restore_button, FALSE, FALSE, 4);
     gtk_widget_set_sensitive (m_restore_button, FALSE);
@@ -399,7 +425,11 @@ SetupUI::create_splash_view ()
                 "<span size=\"12000\">Copyright 2002-2004, James Su &lt;suzhe@tsinghua.org.cn&gt;</span>"));
     gtk_box_pack_start (GTK_BOX (vbox), view, TRUE, TRUE, 4);
 
+#if GTK_CHECK_VERSION(3, 0, 0)
+    gtk_widget_get_preferred_size(vbox, &size, NULL);
+#else
     gtk_widget_size_request (vbox, &size);
+#endif
 
     if (size.width  < 320) size.width = 320;
     if (size.height < 240) size.height = 240;
@@ -429,7 +459,11 @@ SetupUI::create_setup_cover (const char *category)
 
     gtk_widget_show (cover);
 
+#if GTK_CHECK_VERSION(3, 0, 0)
+    gtk_widget_get_preferred_size(cover, &size, NULL);
+#else
     gtk_widget_size_request (cover, &size);
+#endif
 
     if (size.width  < 320) size.width = 320;
     if (size.height < 240) size.height = 240;
@@ -510,7 +544,7 @@ SetupUI::module_list_selection_changed_callback (GtkTreeSelection *selection, gp
 
         if (widget != ui->m_current_widget) {
             //Hide all other widgets
-            gtk_tree_model_foreach (model, module_list_hide_widget_iter_func, NULL); 
+            gtk_tree_model_foreach (model, module_list_hide_widget_iter_func, NULL);
             gtk_widget_show (widget);
             ui->m_current_widget = widget;
         }
@@ -621,7 +655,7 @@ SetupUI::ok_button_clicked_callback (GtkButton *button, gpointer user_data)
     if (!ui->m_config.null ()) {
         gtk_tree_model_foreach (GTK_TREE_MODEL (ui->m_module_list_model),
                                 module_list_save_config_iter_func,
-                                user_data); 
+                                user_data);
 
         ui->m_config->flush ();
         if (ui->m_changes_applied)
