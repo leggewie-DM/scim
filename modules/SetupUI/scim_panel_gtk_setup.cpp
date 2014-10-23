@@ -208,7 +208,11 @@ create_setup_window ()
 #endif
 
         // Create the vbox for the first page.
+#if GTK_CHECK_VERSION(3, 0, 0)
+        page = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+#else
         page = gtk_vbox_new (FALSE, 0);
+#endif
         gtk_widget_show (page);
 
         vbox = page;
@@ -219,23 +223,43 @@ create_setup_window ()
         gtk_box_pack_start (GTK_BOX (vbox), frame, FALSE, FALSE, 0);
         gtk_container_set_border_width (GTK_CONTAINER (frame), 4);
 
+#if GTK_CHECK_VERSION(3, 4, 0)
+        table = gtk_grid_new();
+        gtk_grid_set_row_spacing (GTK_GRID (table), 4);
+        gtk_grid_set_column_spacing (GTK_GRID (table), 8);
+#else
         table = gtk_table_new (4, 2, FALSE);
-        gtk_widget_show (table);
-        gtk_container_add (GTK_CONTAINER (frame), table);
         gtk_table_set_row_spacings (GTK_TABLE (table), 4);
         gtk_table_set_col_spacings (GTK_TABLE (table), 8);
+#endif
+        gtk_widget_show (table);
+        gtk_container_add (GTK_CONTAINER (frame), table);
 
+#if GTK_CHECK_VERSION(3, 0, 0)
+        hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
+#else
         hbox = gtk_hbox_new (FALSE, 0);
+#endif
         gtk_widget_show (hbox);
 
+#if GTK_CHECK_VERSION(3, 4, 0)
+        gtk_widget_set_halign (hbox, GTK_ALIGN_FILL);
+        gtk_grid_attach(GTK_GRID (table), hbox, 0, 0, 1, 1);
+#else
         gtk_table_attach (GTK_TABLE (table), hbox, 0, 1, 0, 1,
                           (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
                           (GtkAttachOptions) (GTK_EXPAND), 4, 0);
+#endif
 
         label = gtk_label_new_with_mnemonic (_("_Show:"));
         gtk_widget_show (label);
         gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 0);
+#if GTK_CHECK_VERSION(3, 14, 0)
+        gtk_widget_set_margin_start (label, 4);
+        gtk_widget_set_margin_end (label, 4);
+#else
         gtk_misc_set_padding (GTK_MISC (label), 4, 0);
+#endif
  
 #if GTK_CHECK_VERSION(2, 24, 0)
         __widget_toolbar_show_behaviour = gtk_combo_box_text_new ();
@@ -260,32 +284,61 @@ create_setup_window ()
 
         __widget_toolbar_auto_snap = gtk_check_button_new_with_mnemonic (_("Auto s_nap"));
         gtk_widget_show (__widget_toolbar_auto_snap);
-        gtk_table_attach (GTK_TABLE (table), __widget_toolbar_auto_snap, 0, 1, 1, 2,
-                          (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
-                          (GtkAttachOptions) (GTK_EXPAND), 4, 0);
 
         __widget_toolbar_show_factory_icon = gtk_check_button_new_with_mnemonic (_("Show _input method icon"));
         gtk_widget_show (__widget_toolbar_show_factory_icon);
-        gtk_table_attach (GTK_TABLE (table), __widget_toolbar_show_factory_icon, 0, 1, 2, 3,
-                          (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
-                          (GtkAttachOptions) (GTK_EXPAND), 4, 0);
 
         __widget_toolbar_show_factory_name = gtk_check_button_new_with_mnemonic (_("Show inp_ut method name"));
         gtk_widget_show (__widget_toolbar_show_factory_name);
+
+#if GTK_CHECK_VERSION(3, 4, 0)
+        gtk_widget_set_halign (__widget_toolbar_auto_snap, GTK_ALIGN_FILL);
+        gtk_grid_attach(GTK_GRID (table), __widget_toolbar_auto_snap, 0, 1, 1, 1);
+
+        gtk_widget_set_halign (__widget_toolbar_show_factory_icon, GTK_ALIGN_FILL);
+        gtk_grid_attach(GTK_GRID (table), __widget_toolbar_show_factory_icon, 0, 2, 1, 1);
+
+        gtk_widget_set_halign (__widget_toolbar_show_factory_name, GTK_ALIGN_FILL);
+        gtk_grid_attach(GTK_GRID (table), __widget_toolbar_show_factory_name, 0, 3, 1, 1);
+#else
+        gtk_table_attach (GTK_TABLE (table), __widget_toolbar_auto_snap, 0, 1, 1, 2,
+                          (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
+                          (GtkAttachOptions) (GTK_EXPAND), 4, 0);
+        gtk_table_attach (GTK_TABLE (table), __widget_toolbar_show_factory_icon, 0, 1, 2, 3,
+                          (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
+                          (GtkAttachOptions) (GTK_EXPAND), 4, 0);
         gtk_table_attach (GTK_TABLE (table), __widget_toolbar_show_factory_name, 0, 1, 3, 4,
                           (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
                           (GtkAttachOptions) (GTK_EXPAND), 4, 0);
+#endif
 
+
+
+#if GTK_CHECK_VERSION(3, 0, 0)
+        hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
+#else
         hbox = gtk_hbox_new (FALSE, 0);
+#endif
         gtk_widget_show (hbox);
+
+#if GTK_CHECK_VERSION(3, 4, 0)
+        gtk_widget_set_halign (hbox, GTK_ALIGN_FILL);
+        gtk_grid_attach (GTK_GRID (table), hbox, 1, 0, 1, 1);
+#else
         gtk_table_attach (GTK_TABLE (table), hbox, 1, 2, 0, 1,
                           (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
                           (GtkAttachOptions) (GTK_EXPAND), 4, 0);
+#endif
 
         label = gtk_label_new_with_mnemonic (_("Hide time_out:"));
         gtk_widget_show (label);
         gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 0);
+#if GTK_CHECK_VERSION(3, 14, 0)
+        gtk_widget_set_margin_start (label, 4);
+        gtk_widget_set_margin_end (label, 4);
+#else
         gtk_misc_set_padding (GTK_MISC (label), 4, 0);
+#endif
 
         __widget_toolbar_hide_timeout = gtk_spin_button_new_with_range (0, 60, 1);
         gtk_widget_show (__widget_toolbar_hide_timeout);
@@ -297,29 +350,48 @@ create_setup_window ()
 
         __widget_toolbar_show_stick_icon = gtk_check_button_new_with_mnemonic (_("Show s_tick icon"));
         gtk_widget_show (__widget_toolbar_show_stick_icon);
-        gtk_table_attach (GTK_TABLE (table), __widget_toolbar_show_stick_icon, 1, 2, 1, 2,
-                          (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
-                          (GtkAttachOptions) (GTK_EXPAND), 4, 0);
 
         __widget_toolbar_show_menu_icon = gtk_check_button_new_with_mnemonic (_("Show m_enu icon"));
         gtk_widget_show (__widget_toolbar_show_menu_icon);
-        gtk_table_attach (GTK_TABLE (table), __widget_toolbar_show_menu_icon, 1, 2, 2, 3,
-                          (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
-                          (GtkAttachOptions) (GTK_EXPAND), 4, 0);
 
         __widget_toolbar_show_help_icon = gtk_check_button_new_with_mnemonic (_("Show _help icon"));
         gtk_widget_show (__widget_toolbar_show_help_icon);
-        gtk_table_attach (GTK_TABLE (table), __widget_toolbar_show_help_icon, 1, 2, 3, 4,
-                          (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
-                          (GtkAttachOptions) (GTK_EXPAND), 4, 0);
 
         __widget_toolbar_show_property_label = gtk_check_button_new_with_mnemonic (_("Show _property label"));
         gtk_widget_show (__widget_toolbar_show_property_label);
+#if GTK_CHECK_VERSION(3, 4, 0)
+        gtk_widget_set_halign (__widget_toolbar_show_stick_icon, GTK_ALIGN_FILL);
+        gtk_grid_attach (GTK_GRID (table), __widget_toolbar_show_stick_icon, 1, 1, 1, 1);
+
+        gtk_widget_set_halign (__widget_toolbar_show_menu_icon, GTK_ALIGN_FILL);
+        gtk_grid_attach (GTK_GRID (table), __widget_toolbar_show_menu_icon, 1, 2, 1, 1);
+
+        gtk_widget_set_halign (__widget_toolbar_show_help_icon, GTK_ALIGN_FILL);
+        gtk_grid_attach (GTK_GRID (table), __widget_toolbar_show_help_icon, 1, 3, 1, 1);
+
+        gtk_widget_set_halign (__widget_toolbar_show_property_label, GTK_ALIGN_FILL);
+        gtk_grid_attach (GTK_GRID (table), __widget_toolbar_show_property_label, 0, 4, 1, 1);
+#else
+        gtk_table_attach (GTK_TABLE (table), __widget_toolbar_show_stick_icon, 1, 2, 1, 2,
+                          (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
+                          (GtkAttachOptions) (GTK_EXPAND), 4, 0);
+        gtk_table_attach (GTK_TABLE (table), __widget_toolbar_show_menu_icon, 1, 2, 2, 3,
+                          (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
+                          (GtkAttachOptions) (GTK_EXPAND), 4, 0);
+        gtk_table_attach (GTK_TABLE (table), __widget_toolbar_show_help_icon, 1, 2, 3, 4,
+                          (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
+                          (GtkAttachOptions) (GTK_EXPAND), 4, 0);
         gtk_table_attach (GTK_TABLE (table), __widget_toolbar_show_property_label, 0, 1, 4, 5,
                           (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
                           (GtkAttachOptions) (GTK_EXPAND), 4, 0);
+#endif
 
+
+#if GTK_CHECK_VERSION(3, 0, 0)
+        hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 8);
+#else
         hbox = gtk_hbox_new (FALSE, 8);
+#endif
         gtk_widget_show (hbox);
         gtk_box_pack_start (GTK_BOX (vbox), hbox, FALSE, FALSE, 0);
 
@@ -329,7 +401,11 @@ create_setup_window ()
         gtk_container_set_border_width (GTK_CONTAINER (frame), 4);
         gtk_box_pack_start (GTK_BOX (hbox), frame, TRUE, TRUE, 0);
 
+#if GTK_CHECK_VERSION(3, 0, 0)
+        vbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 4);
+#else
         vbox = gtk_vbox_new (FALSE, 4);
+#endif
         gtk_widget_show (vbox);
         gtk_container_add (GTK_CONTAINER (frame), vbox);
 
@@ -346,7 +422,11 @@ create_setup_window ()
         gtk_container_set_border_width (GTK_CONTAINER (frame), 4);
         gtk_box_pack_start (GTK_BOX (hbox), frame, TRUE, TRUE, 0);
 
+#if GTK_CHECK_VERSION(3, 0, 0)
+        vbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 4);
+#else
         vbox = gtk_vbox_new (FALSE, 4);
+#endif
         gtk_widget_show (vbox);
         gtk_container_add (GTK_CONTAINER (frame), vbox);
 
@@ -358,14 +438,23 @@ create_setup_window ()
         gtk_widget_show (__widget_default_sticked);
         gtk_box_pack_start (GTK_BOX (vbox), __widget_default_sticked, FALSE, FALSE, 0);
 
+#if GTK_CHECK_VERSION(3, 0, 0)
+        hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
+#else
         hbox = gtk_hbox_new (FALSE, 0);
+#endif
         gtk_widget_show (hbox);
         gtk_box_pack_start (GTK_BOX (vbox), hbox, TRUE, TRUE, 0);
 
         label = gtk_label_new_with_mnemonic (_("_Font:"));
         gtk_widget_show (label);
         gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 0);
+#if GTK_CHECK_VERSION(3, 14, 0)
+        gtk_widget_set_margin_start (label, 4);
+        gtk_widget_set_margin_end (label, 4);
+#else
         gtk_misc_set_padding (GTK_MISC (label), 4, 0);
+#endif
 
         __widget_font = gtk_button_new_with_label ("default");
         gtk_widget_show (__widget_font);
@@ -886,6 +975,32 @@ static void
 on_font_selection_clicked (GtkButton *button,
                            gpointer   user_data)
 {
+#if GTK_CHECK_VERSION(3, 2, 0)
+    GtkWidget *font_selection = gtk_font_chooser_dialog_new (_("Select Interface Font"), NULL);
+    gint result;
+
+    if (__config_font != "default") {
+        gtk_font_chooser_set_font(
+            GTK_FONT_CHOOSER (font_selection),
+            __config_font.c_str ());
+    }
+
+    result = gtk_dialog_run (GTK_DIALOG (font_selection));
+
+    if (result == GTK_RESPONSE_OK) {
+        gchar *fontname = gtk_font_chooser_get_font ( GTK_FONT_CHOOSER (font_selection));
+        __config_font = String (fontname);
+        g_free(fontname);
+
+        gtk_button_set_label (
+            GTK_BUTTON (__widget_font),
+            __config_font.c_str ());
+
+        __have_changed = true;
+    }
+
+    gtk_widget_destroy (font_selection);
+#else
     GtkWidget *font_selection = gtk_font_selection_dialog_new (_("Select Interface Font"));
     gint result;
 
@@ -910,6 +1025,7 @@ on_font_selection_clicked (GtkButton *button,
     }
 
     gtk_widget_destroy (font_selection);
+#endif
 }
 
 /*

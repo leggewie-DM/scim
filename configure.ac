@@ -1,5 +1,5 @@
 # Process this file with autoconf to produce a configure script
-AC_INIT([scim],[1.4.14],[http://sf.net/tracker/?atid=650539&group_id=108454])
+AC_INIT([scim],[1.4.15],[https://github.com/scim-im/scim])
 AC_CONFIG_SRCDIR([src/scim.h])
 
 
@@ -9,7 +9,7 @@ AC_CONFIG_SRCDIR([src/scim.h])
 
 SCIM_MAJOR_VERSION=1
 SCIM_MINOR_VERSION=4
-SCIM_MICRO_VERSION=14
+SCIM_MICRO_VERSION=15
 
 SCIM_VERSION=$SCIM_MAJOR_VERSION.$SCIM_MINOR_VERSION.$SCIM_MICRO_VERSION
 
@@ -78,7 +78,7 @@ AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE,"$GETTEXT_PACKAGE", [The gettext domain])
 ###########################################################
 
 # Init automake stuff
-AM_INIT_AUTOMAKE
+AM_INIT_AUTOMAKE([subdir-objects])
 AM_CONFIG_HEADER([config.h])
 
 # Init libtool
@@ -303,19 +303,18 @@ if test "$SCIM_HAS_QT4" = "yes"; then
 fi
 
 # Check if we should build scim-bridge-clutter-immodule
-PKG_CHECK_MODULES(CLUTTER, clutter-1.0 clutter-imcontext-0.1,
+PKG_CHECK_MODULES(CLUTTER, clutter-1.0,
            [SCIM_HAS_CLUTTER=yes],
            [SCIM_HAS_CLUTTER=no])
 
-if test "$SCIM_HAS_CLUTTER" = "yes"; then
-  CLUTTER_IMCONTEXT_LIBDIR=`$PKG_CONFIG --variable=libdir clutter-imcontext-0.1`
-  CLUTTER_IM_MODULEDIR=$CLUTTER_IMCONTEXT_LIBDIR/clutter-imcontext/immodules
+PKG_CHECK_MODULES(CLUTTERIMCONTEXT, clutter-imcontext-0.1,
+           [SCIM_HAS_CLUTTERIMCONTEXT=yes],
+           [SCIM_HAS_CLUTTERIMCONTEXT=no])
+
+if test "$SCIM_HAS_CLUTTER" = "yes" -a "$SCIM_HAS_CLUTTERIMCONTEXT" = "yes"; then
+  CLUTTERIMCONTEXT_LIBDIR=`$PKG_CONFIG --variable=libdir clutter-imcontext-0.1`
+  CLUTTER_IM_MODULEDIR=$CLUTTERIMCONTEXT_LIBDIR/clutter-imcontext/immodules
   AC_SUBST(CLUTTER_IM_MODULEDIR)
-  AC_SUBST(CLUTTER_LIBDIR)
-  AC_SUBST(CLUTTER_VERSION)
-  AC_SUBST(CLUTTER_BINARY_VERSION)
-  AC_SUBST(CLUTTER_IMCONTEXT_LIBDIR)
-  enable_clutter_immodule="yes";
 fi
 
 
@@ -497,10 +496,10 @@ AC_ARG_ENABLE([qt4-immodule],
 	[enable_qt4_immodule=yes])
 
 AC_ARG_ENABLE([clutter-immodule],
-	[AS_HELP_STRING([--disable-clutter-immodule],
+	[AS_HELP_STRING([--enable-clutter-immodule],
 		[Do not build CLUTTER IMModule])],
 	[], 
-	[enable_clutter_immodule=yes])
+	[enable_clutter_immodule=no])
 
 AC_ARG_ENABLE([panel-gtk],
 	[AS_HELP_STRING([--disable-panel-gtk],
@@ -680,7 +679,9 @@ else
   enable_qt4_immodule=no
 fi
 
-if test "$enable_clutter_immodule" = "yes" -a "$SCIM_HAS_CLUTTER" = "yes"; then
+if test "$enable_clutter_immodule" = "yes" -a \
+	"$SCIM_HAS_CLUTTER" = "yes" -a \
+	"$SCIM_HAS_CLUTTERIMCONTEXT" = "yes" ; then
   SCIM_BUILD_CLUTTER_IMMODULE=1
   SCIM_BUILD_IMMODULE=1
   enable_immodule=yes
