@@ -1,0 +1,16 @@
+Author: Tz-Huan Huang
+Subject: backport 88fbabed7dc and disable subdir-objects
+
+diff --git a/configure.ac b/configure.ac
+index 3d89eb1..f3901ba 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -78,7 +78,7 @@ AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE,"$GETTEXT_PACKAGE", [The gettext domain])
+ ###########################################################
+ 
+ # Init automake stuff
+-AM_INIT_AUTOMAKE([subdir-objects])
++AM_INIT_AUTOMAKE([])
+ AM_CONFIG_HEADER([config.h])
+ 
+ # Init libtool
