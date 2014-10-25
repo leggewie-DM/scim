@@ -1,3 +1,9 @@
+scim (1.4.15-2) unstable; urgency=medium
+
+  * no-change rebuild
+
+ -- Rolf Leggewie <foss@rolf.leggewie.biz>  Sat, 25 Oct 2014 13:25:35 +0900
+
 scim (1.4.15-1) unstable; urgency=medium
 
   [ Tz-Huan Huang ]
