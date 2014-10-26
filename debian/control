@@ -154,6 +154,7 @@ Description: Clutter input method module with SCIM as backend
 
 Package: scim-im-agent
 Architecture: any
+Multi-Arch: foreign
 Pre-Depends: ${misc:Pre-Depends}
 Depends: scim-modules-socket (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
 Provides: scim-bridge-agent
