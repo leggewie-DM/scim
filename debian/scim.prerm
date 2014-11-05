@@ -8,7 +8,7 @@ ua_remove () {
 }
 
 case "$1" in
-    remove|upgrade|deconfigure)
+    remove)
         ua_remove all_ALL scim
         ua_remove ja_JP   scim
         ua_remove ko_KR   scim
