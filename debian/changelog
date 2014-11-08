@@ -1,3 +1,9 @@
+scim (1.4.15-3) unstable; urgency=medium
+
+  * prerm: stop calling "ua --remove" on upgrade and deconfigure. See #71621
+
+ -- Rolf Leggewie <foss@rolf.leggewie.biz>  Sat, 08 Nov 2014 22:54:07 +0800
+
 scim (1.4.15-2) unstable; urgency=medium
 
   * no-change rebuild
