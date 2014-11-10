@@ -1,3 +1,13 @@
+scim (1.4.15-4) experimental; urgency=medium
+
+  [ Tz-Huan Huang ]
+  * control: multi-archify the scim-im-agent package
+
+  [ Rolf Leggewie ]
+  * postinst: stop special-casing a long-gone package version
+
+ -- Rolf Leggewie <foss@rolf.leggewie.biz>  Mon, 10 Nov 2014 13:41:33 +0800
+
 scim (1.4.15-3) unstable; urgency=medium
 
   * prerm: stop calling "ua --remove" on upgrade and deconfigure. See #71621
