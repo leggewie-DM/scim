@@ -16,7 +16,6 @@ Vcs-Browser: http://git.debian.org/?p=collab-maint/scim.git
 Package: scim
 Architecture: any
 Multi-Arch: foreign
-Pre-Depends: ${misc:Pre-Depends}
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Recommends: scim-gtk-immodule, im-config | im-switch, scim-im-agent
 Suggests: scim-uim, scim-pinyin, scim-hangul, scim-chewing, scim-m17n, scim-prime, scim-anthy, scim-skk, scim-canna, scim-tables-additional, scim-tables-ja, scim-tables-ko, scim-tables-zh, scim-thai
@@ -68,7 +67,6 @@ Package: libscim-dev
 Section: libdevel
 Architecture: any
 Multi-Arch: same
-Pre-Depends: ${misc:Pre-Depends}
 Depends: libscim8c2a (= ${binary:Version}), libx11-dev, libgtk2.0-dev,
  libgtk-3-dev | libgtk2.0-dev (<< 2.21), libpango1.0-dev, ${misc:Depends}
 Description: development library for SCIM platform
@@ -92,7 +90,6 @@ Description: development library for SCIM platform
 Package: scim-gtk-immodule
 Architecture: any
 Multi-Arch: same
-Pre-Depends: ${misc:Pre-Depends}
 Depends: scim (= ${binary:Version}), scim-im-agent (= ${binary:Version}),
  ${shlibs:Depends}, ${misc:Depends}
 Provides: scim-gtk2-immodule, scim-gtk-immodule
@@ -115,7 +112,6 @@ Description: GTK+ input method module with SCIM as backend
 Package: scim-qt-immodule
 Architecture: any
 Multi-Arch: same
-Pre-Depends: ${misc:Pre-Depends}
 Depends: scim (= ${binary:Version}), scim-im-agent (= ${binary:Version}),
  ${shlibs:Depends}, ${misc:Depends}
 Provides: scim-bridge-client-qt4
@@ -136,7 +132,6 @@ Description: Qt input method module with SCIM as backend
 Package: scim-clutter-immodule
 Architecture: any
 Multi-Arch: same
-Pre-Depends: ${misc:Pre-Depends}
 Depends: scim (= ${binary:Version}), scim-im-agent (= ${binary:Version}),
  ${shlibs:Depends}, ${misc:Depends}
 Enhances: scim
@@ -155,7 +150,6 @@ Description: Clutter input method module with SCIM as backend
 Package: scim-im-agent
 Architecture: any
 Multi-Arch: foreign
-Pre-Depends: ${misc:Pre-Depends}
 Depends: scim-modules-socket (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
 Provides: scim-bridge-agent
 Conflicts: scim-bridge-agent
@@ -172,7 +166,6 @@ Description: IM agent for SCIM platform
 Package: scim-modules-socket
 Architecture: any
 Multi-Arch: same
-Pre-Depends: ${misc:Pre-Depends}
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Enhances: scim
 Description: socket modules for SCIM platform
