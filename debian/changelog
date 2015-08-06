@@ -1,3 +1,16 @@
+scim (1.4.15-5) unstable; urgency=medium
+
+  [ Rolf Leggewie ]
+  * control: drop unused Pre-Depends line from a number of binary pkgs
+
+  [ Matthias Klose ]
+  * Rename libscim8c2a to libscim8v5 for the libstdc++6 triggered ABI
+    change. Closes: #791275.
+    - Add Conflict/Replaces to the old package as necessary
+    - Adjust lintian override files as necessary
+
+ -- Rolf Leggewie <foss@rolf.leggewie.biz>  Thu, 06 Aug 2015 23:06:52 +0800
+
 scim (1.4.15-4) experimental; urgency=medium
 
   [ Tz-Huan Huang ]
