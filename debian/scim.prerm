@@ -24,7 +24,7 @@ case "$1" in
         ua_remove zh_HK   scim-immodule
         ua_remove zh_SG   scim-immodule
 	;;
-    failed-upgrade)
+    upgrade|deconfigure|failed-upgrade)
 	;;
     *)
 	echo "prerm called with unknown argument \`$1'" >&2
