@@ -1,3 +1,10 @@
+scim (1.4.15-6) unstable; urgency=medium
+
+  [ Chris Boot ]
+  * scim.prerm: stop failing on two valid arguments. Closes: #813260
+
+ -- Rolf Leggewie <foss@rolf.leggewie.biz>  Sun, 21 Feb 2016 20:33:29 +0800
+
 scim (1.4.15-5) unstable; urgency=medium
 
   [ Rolf Leggewie ]
