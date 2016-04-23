@@ -1,3 +1,17 @@
+scim (1.4.16-1) unstable; urgency=medium
+
+  [ Tz-Huan Huang ]
+  * new Upstream release 1.4.16
+  * patches:
+    - drop disable-subdir-objects after pushing it upstream
+    - rebase 01_scim_config.patch to newest upstream code
+    - backport 6ac4af3bfd36 to fix text drawing bug for gtk >= 3.20. Closes: #820746
+
+  [ Rolf Leggewie ]
+  * control: update to Debian Standard 3.9.7. No further changes.
+
+ -- Rolf Leggewie <foss@rolf.leggewie.biz>  Sat, 23 Apr 2016 21:31:14 +0200
+
 scim (1.4.15-6) unstable; urgency=medium
 
   [ Chris Boot ]
