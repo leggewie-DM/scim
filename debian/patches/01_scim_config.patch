@@ -1,9 +1,9 @@
 Author: Qingyu Wang <qwang@redhat.com>, Jens Petersen <petersen@redhat.com>
 Source: FC14
 Description: replaced content of config by the package data scim-system-config
---- a/configs/config
-+++ b/configs/config
-@@ -1,17 +1,36 @@
+--- a/configs/config	2016-04-23 21:52:09.763518543 +0800
++++ b/configs/config	2016-04-23 21:48:53.343760143 +0800
+@@ -1,4 +1,13 @@
  # This file is encoded in UTF-8 encoding.
 +/DefaultIMEngineFactory/si_LK = IMEngine-M17N-si-wijesekera
 +/DefaultIMEngineFactory/ta_IN = IMEngine-M17N-ta-tamil99
@@ -15,10 +15,9 @@ Description: replaced content of config by the package data scim-system-config
 +# chewing
 +/DefaultIMEngineFactory/zh_TW = fcff66b6-4d3e-4cf2-833c-01ef66ac6025
  /FrontEnd/OnTheSpot = true
--/FrontEnd/ChangeFactoryGlobally = false
- /FrontEnd/Socket/ConfigReadOnly = false
- /FrontEnd/Socket/MaxClients = 512
- /FrontEnd/X11/BrokenWchar = true
+ /FrontEnd/SharedInputMethod = true
+ /FrontEnd/ChangeFactoryGlobally = false
+@@ -8,11 +17,22 @@
  /FrontEnd/X11/Dynamic = false
  /FrontEnd/X11/OnTheSpot = true
  /FrontEnd/X11/ServerName = SCIM
@@ -45,7 +44,7 @@ Description: replaced content of config by the package data scim-system-config
  /Panel/Gtk/Color/ActiveBackground = light sky blue
  /Panel/Gtk/Color/ActiveText = black
  /Panel/Gtk/Color/NormalBackground = #F7F3F7
-@@ -19,7 +38,7 @@
+@@ -20,7 +40,7 @@
  /Panel/Gtk/Font = default
  /Panel/Gtk/DefaultSticked = false
  /Panel/Gtk/LookupTableEmbedded = true
