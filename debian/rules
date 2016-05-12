@@ -4,7 +4,7 @@ export DH_OPTIONS=-v
 export DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
 
 %:
-	dh $@ --with autoreconf
+	dh $@ --parallel --with autoreconf
 
 override_dh_autoreconf:
 	./bootstrap
