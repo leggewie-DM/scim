@@ -18,7 +18,6 @@ override_dh_auto_build:
 	dh_auto_build
 
 override_dh_auto_install:
-	set -e
 	dh_auto_install
 	# empty the dependency_libs field in .la files (bug 591628)
 	find debian/tmp/usr/lib/ -name *.la -exec sed -i "/dependency_libs/ s/'.*'/''/" {} \;
@@ -26,14 +25,7 @@ override_dh_auto_install:
 override_dh_installdocs:
 	dh_installdocs -X Makefile
 
-override_dh_install:
-	set -e
-
-	for FILE in debian/*.install.in; \
-	do \
-		sed -e "s/@DEB_HOST_MULTIARCH@/$(DEB_HOST_MULTIARCH)/g" $$FILE > debian/`basename $$FILE .in`; \
-	done
-
+override_dh_install-arch:
 	dh_install
 	sed -i -e 's/@DEB_HOST_MULTIARCH@/$(DEB_HOST_MULTIARCH)/g' debian/scim/etc/X11/xinit/xinput.d/scim-immodule
 	LD_LIBRARY_PATH=debian/libscim8v5/usr/lib/$(DEB_HOST_MULTIARCH):$(LD_LIBRARY_PATH) \
