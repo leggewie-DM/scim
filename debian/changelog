@@ -1,3 +1,20 @@
+scim (1.4.16-3) unstable; urgency=medium
+
+  [ Santiago Vila ]
+  * scimplify build process and make it more robust. Closes: #806105
+    - Drop unnecessary use of "set -e" in debian/rules.
+    - Drop unnecessary use of debian/*.install.in files.
+    - Rename override_dh_install to override_dh_install-arch
+      for dpkg-buildpackage -A to work
+
+  [ Rolf Leggewie ]
+  * control:
+    - add Benda to Debian Scim Maintainers
+      a warm welcome to the team!
+    - update to latest Debian standard 3.9.8. No further changes.
+
+ -- Rolf Leggewie <foss@rolf.leggewie.biz>  Mon, 23 May 2016 15:25:27 +0800
+
 scim (1.4.16-2) unstable; urgency=medium
 
   [ Tz-Huan Huang ]
