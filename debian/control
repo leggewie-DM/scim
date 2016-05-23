@@ -2,7 +2,7 @@ Source: scim
 Section: utils
 Priority: optional
 Maintainer: Rolf Leggewie <foss@rolf.leggewie.biz>
-Uploaders: Tz-Huan Huang <tzhuan@gmail.com>
+Uploaders: Tz-Huan Huang <tzhuan@gmail.com>, Benda Xu <heroxbd@gentoo.org>
 Standards-Version: 3.9.7
 Build-Depends: dpkg-dev (>= 1.14.6), debhelper (>= 9),
  dh-autoreconf, intltool, autopoint, pkg-config, x11proto-core-dev, libx11-dev,
