@@ -1,3 +1,2 @@
-fix-scim_string_view_draw-bug-for-gtk-gt-3-20.patch
 01_scim_config.patch
 fix-preedit-area-text-bg-colors.patch
