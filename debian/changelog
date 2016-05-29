@@ -1,3 +1,14 @@
+scim (1.4.17-1) unstable; urgency=medium
+
+  [ Tz-Huan Huang ]
+  * new upstream release 1.4.17
+    - fix the quick-search issue. Closes: #821869
+    - drop fix-preedit-area-text-bg-colors.patch which has landed upstream
+    - drop fix-scim_string_view_draw-bug-for-gtk-gt-3-20.patch which has
+      landed upstream
+
+ -- Tz-Huan Huang <tzhuan@gmail.com>  Sun, 29 May 2016 21:47:04 +0800
+
 scim (1.4.16-2) unstable; urgency=medium
 
   [ Tz-Huan Huang ]
