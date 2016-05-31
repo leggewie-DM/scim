@@ -1,3 +1,19 @@
+scim (1.4.17-1) unstable; urgency=medium
+
+  [ Tz-Huan Huang ]
+  * new upstream release 1.4.17
+    - fixes "scim breaks compose key". Closes: #618763, LP: #610979.
+    - fixes "Backspace and delete keys dysfunctional in gedit".
+      Closes: #747154, LP: #1315579, LP: #343708, LP: #157289.
+    - fixes "problem in 'quick find/search' of generic file manager".
+      Closes: #821869, LP: #287719.
+  * drop two patches that were upstreamed
+
+  [ Rolf Leggewie ]
+  * control: switch homepage for scim from sf.net to github
+
+ -- Rolf Leggewie <foss@rolf.leggewie.biz>  Tue, 31 May 2016 15:15:06 +0800
+
 scim (1.4.16-3) unstable; urgency=medium
 
   [ Santiago Vila ]
