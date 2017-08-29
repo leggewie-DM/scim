@@ -1,3 +1,13 @@
+scim (1.4.18-1) unstable; urgency=medium
+
+  * new upstream version 1.4.18
+    - compiles fine with gcc7. Closes: #853654
+  * update watch file to point to github
+  * copyright: update my copyright to 2017
+  * control: update to Debian Standard 4.1.0
+
+ -- Rolf Leggewie <foss@rolf.leggewie.biz>  Tue, 29 Aug 2017 10:37:28 +0800
+
 scim (1.4.17-1) unstable; urgency=medium
 
   [ Tz-Huan Huang ]
