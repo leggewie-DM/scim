@@ -10,7 +10,7 @@ override_dh_autoreconf:
 	./bootstrap
 
 override_dh_auto_configure:
-	dh_auto_configure -- --enable-clutter-immodule
+	dh_auto_configure -- --enable-clutter-immodule --disable-qt3-immodule --disable-qt4-immodule
 
 override_dh_auto_build:
 	$(MAKE) docs
