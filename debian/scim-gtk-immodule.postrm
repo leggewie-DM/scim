@@ -1,0 +1,19 @@
+#!/bin/sh
+set -e
+
+case "$1" in
+    remove|purge)
+        /usr/lib/@DEB_HOST_MULTIARCH@/libgtk2.0-0/gtk-query-immodules-2.0 --update-cache
+        /usr/lib/@DEB_HOST_MULTIARCH@/libgtk-3-0/gtk-query-immodules-3.0 --update-cache
+    ;;
+
+    upgrade|failed-upgrade|abort-install|abort-upgrade|disappear)
+    ;;
+
+    *)
+        echo "postrm called with unknown argument \`$1'" >&2
+        exit 1
+    ;;
+esac
+
+#DEBHELPER#
