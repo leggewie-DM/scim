@@ -1,3 +1,11 @@
+scim (1.4.18-3) unstable; urgency=medium
+
+  * Disable qt-immodules build. Closes: #875258, Closes: #875250
+  * Update rules and add scim-gtk-immodule.postinst/scim-gtk-immodule.postrm
+    to install gtk-immodules without dh_gtkmodules.
+
+ -- Tz-Huan Huang <tzhuan@olympus>  Sun, 08 Sep 2019 03:13:15 +0800
+
 scim (1.4.18-2) unstable; urgency=medium
 
   * copyright: update to 2018
@@ -329,12 +337,12 @@ scim (1.4.9-2) unstable; urgency=low
   [ Rolf Leggewie ]
   * debian/README*: fix some spelling mistakes and bitrot
   * debian/rules: remove obsolete Chinese manual (Closes: #427520)
-  * debian/control: 
+  * debian/control:
     - let scim-bridge pull in clients packages by default
     - let libscim8c2a conflict with older versions of scim-gtk2-immodule
       to offer Ubuntu a safe way out of earlier packaging mistakes
   * debian/scim.postinst: improve handling of update-alternatives
-  * debian/patches: 
+  * debian/patches:
     - push back and update a number of patches from Ubuntu
     - drop AltGr as trigger key from 20_scim_config.dpatch
   * add a lintian override for libscim8c2a package
@@ -353,15 +361,15 @@ scim (1.4.9-1) unstable; urgency=low
   * drop 90_relibtoolize.dpatch, looks like the retooling was done upstream
 
   [ LI Daobing ]
-  * debian/control: 
-    - add me to uploaders. 
+  * debian/control:
+    - add me to uploaders.
     - bump debhelper version to >= 7.
     - fix typo in description: GTK -> GTK+.
     - fix typo in description: meta package -> metapackage.
   * debian/compat:
     - bump debhelper version to 7.
-  * debian/scim-dev-doc.doc-base: change section to Text. 
-  * debian/rules: 
+  * debian/scim-dev-doc.doc-base: change section to Text.
+  * debian/rules:
     - bump shlib version to 1.4.9.
     - change "rm" to "rm -f".
     - remove deprecated desktop entry
@@ -703,7 +711,7 @@ scim (1.0.1-3) unstable; urgency=high
 
 scim (1.0.1-2) unstable; urgency=high
 
-  * Patch to redirects the messages to standard error per Aaron M. Ucko. 
+  * Patch to redirects the messages to standard error per Aaron M. Ucko.
     (Closes: #280374)
 
  -- Osamu Aoki <osamu@debian.org>  Tue, 09 Nov 2004 07:31:17 +0100
